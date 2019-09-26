@@ -3,3 +3,4 @@ node_modules/
 go-magic-mirror
 *.swp
 *.log
+pid.txt
