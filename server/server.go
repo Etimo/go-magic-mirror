@@ -17,13 +17,17 @@ func StartServer(bindAddress string) {
 	router.HandleFunc("/api/pomodoro", controllers.PomodoroReturn)
 	router.HandleFunc("/ws", socket.BindWebSocket)
 	router.HandleFunc("/forward", controllers.WriteToChannel)
-	router.PathPrefix("/static/").Handler(http.StripPrefix("./dist/",
-		http.FileServer(http.Dir("./public"))))
+	router.PathPrefix("/").Handler(http.StripPrefix("/",
+		http.FileServer(http.Dir("./dist"))))
+	//Handlers are methods called on all routes they are registered for,
+	//here we register a LoggingHandler for access-tracking and a recovery (crash-handler)
 	go socket.WriteWaiting()
 
 	handler := HandleError(
 		handlers.LoggingHandler(os.Stdout, router))
-
+	router.HandleFunc("/panictest", func(w http.ResponseWriter, r *http.Request) {
+		panic("This is a triggered panic")
+	})
 	log.Fatal(http.ListenAndServe(bindAddress, handler))
 
 }
