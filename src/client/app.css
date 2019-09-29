@@ -1,8 +1,9 @@
 h1 {
-  color: blue;
+  color: white;
 }
 
 body {
   text-align: center;
   margin: auto;
+  background-color:black;
 }

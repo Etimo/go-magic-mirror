@@ -1,23 +1,30 @@
+
+import React from 'react'
 import { Component } from 'react';
 import './app.css';
-
+import ComponentSocket from './components/component-socket.jsx'
 export default class App extends Component {
 
-state = {simple:null}
+state = {
+  onmessage : (event) => {
+    console.log("message here:"+event.data);
+    const data = JSON.parse(event.data);
+    var stateUpdate = {}
+    stateUpdate[data.id]=data;
+    this.setState(stateUpdate);
+  }
+};
+
 componentWillmount() {
   this.setState({simple:"Not gotten"});
   }
   componentDidMount() {
-    fetch('/api/pomodoro')
-      .then(res => res.json())
-      .then(simple => this.setState({ simple: simple.simple }));
   }
 
   render() {
-    const { simple } = this.state;
     return (
       <div>
-        {simple ? <h1>{`Hello ${simple}`}</h1> : <h1>Updating the page when fetched.</h1>}
+        <ComponentSocket url="ws://localhost:8080/ws" onmessage={this.state.onmessage}/>
       </div>
     );
   }
