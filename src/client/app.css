@@ -1,5 +1,18 @@
-h1 {
+body {
   color: white;
+  text-align:left;
+}
+.progressDiv{
+  width:100%;
+  display: flex;
+}
+.progress {
+  background-color:red;
+  height:3em;
+  display:inline-block;
+}
+.progressSpan {
+  align:top;
 }
 
 body {

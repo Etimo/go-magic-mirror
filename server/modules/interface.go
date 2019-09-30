@@ -1,7 +1,7 @@
-package main
+package modules
 
 type Module interface {
-	update()
-	timedUpdate()
-	getId() string
+	Update()
+	TimedUpdate()
+	GetId() string
 }

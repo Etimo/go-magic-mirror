@@ -7,3 +7,4 @@ type Pomodoro struct {
 type WelcomeMessage struct {
 	Message string `json:"message"`
 }
+

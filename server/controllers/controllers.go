@@ -7,16 +7,17 @@ import (
 	"net/http"
 
 	"github.com/etimo/go-magic-mirror/server/models"
-	"github.com/etimo/go-magic-mirror/server/socket"
 )
 
-var channelWriter = socket.WriteChannel
+type Controllers struct {
+	SocketChannel chan []byte
+}
 
-func PomodoroReturn(w http.ResponseWriter, r *http.Request) {
+func (c Controllers) PomodoroReturn(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.Pomodoro{Simple: "Pomodoro was here!"})
 }
 
-func WriteToChannel(w http.ResponseWriter, r *http.Request) {
+func (c Controllers) WriteToChannel(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		log.Fatal("API supports only POST, was:", r.Method)
 		http.Error(w, "Wrong method", http.StatusBadRequest)
@@ -33,6 +34,6 @@ func WriteToChannel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error reading body", http.StatusBadRequest)
 	}
 	//This pushes incoming bytes to our websocket for easy testing
-	channelWriter <- bytes
+	c.SocketChannel <- bytes
 
 }

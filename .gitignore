@@ -4,3 +4,4 @@ go-magic-mirror
 *.swp
 *.log
 pid.txt
+*.orig

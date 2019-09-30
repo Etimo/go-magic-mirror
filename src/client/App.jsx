@@ -1,8 +1,9 @@
 
 import React from 'react'
 import { Component } from 'react';
-import './app.css';
+import './app.scss';
 import ComponentSocket from './components/component-socket.jsx'
+import SystemInfo from './components/systeminfo/systeminfo.jsx'
 export default class App extends Component {
 
 state = {
@@ -25,6 +26,7 @@ componentWillmount() {
     return (
       <div>
         <ComponentSocket url="ws://localhost:8080/ws" onmessage={this.state.onmessage}/>
+        <SystemInfo id="systeminfo" message={this.state.systeminfo}/>
       </div>
     );
   }
