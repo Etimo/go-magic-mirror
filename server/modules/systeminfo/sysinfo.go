@@ -24,19 +24,20 @@ var (
 )
 
 type SysMessage struct {
-	Id                string  `json:"id"`
-	Os                string  `json:"os"`
-	HostName          string  `json:"hostName"`
-	TotalMemory       string  `json:"memoryTotal"`
-	UsedMemoryPercent float64 `json:"memoryUsedPercent"`
-	MemoryUsed        string  `json:"usedMemory"`
-	Cpus              []Cpu   `json:"cpus"`
-	Uptime            uint64  `json:"uptime"`
+	Id                string           `json:"id"`
+	Os                string           `json:"os"`
+	HostName          string           `json:"hostName"`
+	TotalMemory       string           `json:"memoryTotal"`
+	UsedMemoryPercent float64          `json:"memoryUsedPercent"`
+	MemoryUsed        string           `json:"usedMemory"`
+	Cpus              map[string][]Cpu `json:"cpus"`
+	Uptime            uint64           `json:"uptime"`
 }
 type Cpu struct {
-	ModelName   string
-	Mhz         int
-	Utilization float64
+	ModelName   string  `json:"-"`
+	Mhz         int     `json:"mhz"`
+	Utilization float64 `json:"utilization"`
+	Cpu         int32   `json:"cpuIndex"`
 }
 type SysinfoModule struct {
 	writer          *json.Encoder
@@ -44,6 +45,8 @@ type SysinfoModule struct {
 	delay           time.Duration
 	constantMessage SysMessage
 }
+
+var cpusCores = make([]Cpu, 0)
 
 func NewSysInfoModule(channel chan []byte,
 	id string,
@@ -72,11 +75,25 @@ func getConstantInfo() SysMessage {
 			cpus[i] = Cpu{
 				ModelName: core.ModelName,
 				Mhz:       int(core.Mhz),
+				Cpu:       core.CPU,
 			}
 		}
-		message.Cpus = cpus
+		cpusCores = cpus
 	}
 	return message
+}
+
+func groupCpus(infoCores []Cpu) map[string][]Cpu {
+
+	cpus := make(map[string][]Cpu, len(infoCores))
+	for _, core := range infoCores {
+		if cpus[core.ModelName] == nil {
+			cpus[core.ModelName] = make([]Cpu, 0)
+		}
+		modelCpus := cpus[core.ModelName]
+		cpus[core.ModelName] = append(modelCpus, core)
+	}
+	return cpus
 }
 
 func (s SysinfoModule) Update() {
@@ -88,11 +105,13 @@ func (s SysinfoModule) Update() {
 		message.TotalMemory = convertMemUnit(memReport.Total, GB)
 		message.UsedMemoryPercent = math.Round(memReport.UsedPercent)
 	}
-	times, errTimes := cpu.Percent(0, true)
+	cpus := cpusCores
+	times, errTimes := cpu.Percent(s.delay/2, true)
 	if errTimes == nil {
 		for i, util := range times {
-			message.Cpus[i].Utilization = util
+			cpus[i].Utilization = math.Round(util)
 		}
+		message.Cpus = groupCpus(cpus)
 	}
 	uptime, err := host.Uptime()
 	if err == nil {

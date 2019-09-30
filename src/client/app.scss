@@ -1,0 +1,21 @@
+.progressDiv{
+  width:100%;
+  display: flex;
+  .progressSpan {
+    vertical-align:top;
+    margin-right:5px;
+  }
+}
+.progress {
+  background-color:red;
+  height:3em;
+  display:inline-block;
+}
+
+body {
+  text-align: center;
+  margin: auto;
+  background-color:black;
+  color: white;
+  text-align:left;
+}
