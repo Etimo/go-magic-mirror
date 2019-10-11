@@ -8,6 +8,7 @@
 }
 .progress {
   background-color:red;
+  transition: width 0.05s linear;
   height:3em;
   display:inline-block;
 }

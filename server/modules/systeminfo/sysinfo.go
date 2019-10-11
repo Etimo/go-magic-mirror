@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/models"
+	"github.com/etimo/go-magic-mirror/server/modules"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
@@ -32,6 +33,10 @@ type SysMessage struct {
 	MemoryUsed        string           `json:"usedMemory"`
 	Cpus              map[string][]Cpu `json:"cpus"`
 	Uptime            uint64           `json:"uptime"`
+}
+type CreateMessage struct {
+	Id    string `json:"id"`
+	Delay int    `json:"delay"`
 }
 type Cpu struct {
 	ModelName   string  `json:"-"`
@@ -132,4 +137,13 @@ func (s SysinfoModule) TimedUpdate() {
 		time.Sleep(s.delay)
 		s.Update()
 	}
+}
+func (s SysinfoModule) CreateFromMessage(message []byte, channel chan []byte) (modules.Module, error) {
+	var targetMessage CreateMessage
+	err := json.Unmarshal(message, &targetMessage)
+	if err != nil {
+		return nil, err
+	}
+	//json.Unmarshal(message, &targetMessage)
+	return NewSysInfoModule(channel, targetMessage.Id, time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }

@@ -6,13 +6,12 @@ import (
 	"os"
 
 	"github.com/etimo/go-magic-mirror/server/controllers"
-	"github.com/etimo/go-magic-mirror/server/modules"
 	"github.com/etimo/go-magic-mirror/server/socket"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
-var mods modules.ModuleContext
+var mods ModuleContext
 var sock socket.ServerSocket
 var contrl controllers.Controllers
 
@@ -31,8 +30,10 @@ func StartServer(bindAddress string) {
 	router := mux.NewRouter()
 	router.Handle("/public", http.FileServer(http.Dir("./public")))
 	router.HandleFunc("/api/pomodoro", contrl.PomodoroReturn)
+
 	router.HandleFunc("/ws", sock.BindWebSocket)
 	router.HandleFunc("/forward", contrl.WriteToChannel)
+
 	router.PathPrefix("/").Handler(
 		http.StripPrefix("/",
 			http.FileServer(http.Dir("./dist"))))
@@ -44,12 +45,12 @@ func StartServer(bindAddress string) {
 	router.HandleFunc("/panictest", func(w http.ResponseWriter, r *http.Request) {
 		panic("This is a triggered panic")
 	})
-	SetupModules()
+	setupModules()
 	sock.ConnectedCallback = mods.InitialMessages
 	log.Fatal(http.ListenAndServe(bindAddress, handler))
 
 }
-func SetupModules() {
-	mods = modules.NewModuleContext(sock.WriteChannel)
+func setupModules() {
+	mods = NewModuleContext(sock.WriteChannel)
 	go mods.SetupTimedUpdates()
 }

@@ -59,7 +59,7 @@ func (s *ServerSocket) WriteWaiting() {
 		//Comment!
 		writeByte := <-s.WriteChannel
 		if s.currentWs == nil {
-			fmt.Printf("Socket still nill!")
+			//fmt.Printf("Socket still nill!")
 			continue
 		}
 		err := s.currentWs.WriteMessage(websocket.TextMessage, writeByte)

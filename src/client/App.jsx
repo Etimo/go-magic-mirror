@@ -27,6 +27,7 @@ componentWillmount() {
       <div>
         <ComponentSocket url="ws://localhost:8080/ws" onmessage={this.state.onmessage}/>
         <SystemInfo id="systeminfo" message={this.state.systeminfo}/>
+        <SystemInfo id="systeminfo2" message={this.state.systeminfo2}/>
       </div>
     );
   }
