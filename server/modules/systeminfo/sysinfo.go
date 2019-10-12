@@ -25,7 +25,7 @@ var (
 )
 
 type SysMessage struct {
-	Id                string           `json:"id"`
+	ID                string           `json:"id"`
 	Os                string           `json:"os"`
 	HostName          string           `json:"hostName"`
 	TotalMemory       string           `json:"memoryTotal"`
@@ -35,14 +35,14 @@ type SysMessage struct {
 	Uptime            uint64           `json:"uptime"`
 }
 type CreateMessage struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Delay int    `json:"delay"`
 }
 type Cpu struct {
 	ModelName   string  `json:"-"`
 	Mhz         int     `json:"mhz"`
 	Utilization float64 `json:"utilization"`
-	Cpu         int32   `json:"cpuIndex"`
+	CPU         int32   `json:"cpuIndex"`
 }
 type SysinfoModule struct {
 	writer          *json.Encoder
@@ -80,7 +80,7 @@ func getConstantInfo() SysMessage {
 			cpus[i] = Cpu{
 				ModelName: core.ModelName,
 				Mhz:       int(core.Mhz),
-				Cpu:       core.CPU,
+				CPU:       core.CPU,
 			}
 		}
 		cpusCores = cpus
@@ -104,7 +104,7 @@ func groupCpus(infoCores []Cpu) map[string][]Cpu {
 func (s SysinfoModule) Update() {
 
 	message := s.constantMessage
-	message.Id = s.GetId()
+	message.ID = s.GetId()
 	memReport, errMem := mem.VirtualMemory()
 	if errMem == nil {
 		message.TotalMemory = convertMemUnit(memReport.Total, GB)
@@ -145,5 +145,5 @@ func (s SysinfoModule) CreateFromMessage(message []byte, channel chan []byte) (m
 		return nil, err
 	}
 	//json.Unmarshal(message, &targetMessage)
-	return NewSysInfoModule(channel, targetMessage.Id, time.Duration(targetMessage.Delay)*time.Millisecond), nil
+	return NewSysInfoModule(channel, targetMessage.ID, time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }

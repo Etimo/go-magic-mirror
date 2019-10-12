@@ -29,10 +29,9 @@ func StartServer(bindAddress string) {
 
 	router := mux.NewRouter()
 	router.Handle("/public", http.FileServer(http.Dir("./public")))
-	router.HandleFunc("/api/pomodoro", contrl.PomodoroReturn)
 
 	router.HandleFunc("/ws", sock.BindWebSocket)
-	router.HandleFunc("/forward", contrl.WriteToChannel)
+	router.HandleFunc("/forward", contrl.WriteToChannel).Methods(http.MethodPost)
 
 	router.PathPrefix("/").Handler(
 		http.StripPrefix("/",
@@ -51,6 +50,6 @@ func StartServer(bindAddress string) {
 
 }
 func setupModules() {
-	mods = NewModuleContext(sock.WriteChannel)
+	mods = NewModuleContext(sock.WriteChannel, sock.ReadChannel)
 	go mods.SetupTimedUpdates()
 }

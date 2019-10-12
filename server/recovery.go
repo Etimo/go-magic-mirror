@@ -21,8 +21,8 @@ func HandleError(handler http.Handler) http.Handler {
 				default:
 					err = errors.New("Unknown error")
 				}
-				log.Fatal("Exception in call to: ", r.URL.RequestURI(), " : ", err)
 				debug.PrintStack()
+				log.Fatal("Exception in call to: ", r.URL.RequestURI(), " : ", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 		}()
