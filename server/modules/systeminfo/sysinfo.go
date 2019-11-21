@@ -76,16 +76,27 @@ func getConstantInfo() SysMessage {
 	infoCores, errCpu := cpu.Info()
 	if errCpu == nil {
 		cpus := make([]Cpu, len(infoCores))
-		for i, core := range infoCores {
-			cpus[i] = Cpu{
-				ModelName: core.ModelName,
-				Mhz:       int(core.Mhz),
-				CPU:       core.CPU,
-			}
+		for _, core := range infoCores {
+			cpus = append(cpus, createCpus(core)...)
 		}
 		cpusCores = cpus
 	}
 	return message
+}
+
+//Needed to be compatible with Mac/Linux/windows which
+//report multicore CPUs differently.
+func createCpus(cpuInfo cpu.InfoStat) []Cpu {
+	cpus := make([]Cpu, cpuInfo.Cores)
+	for i := int32(0); i < cpuInfo.Cores; i++ {
+		cpus[i] = Cpu{
+			ModelName: cpuInfo.ModelName,
+			Mhz:       int(cpuInfo.Mhz),
+			CPU:       cpuInfo.CPU,
+		}
+	}
+	return cpus
+
 }
 
 func groupCpus(infoCores []Cpu) map[string][]Cpu {
@@ -112,6 +123,8 @@ func (s SysinfoModule) Update() {
 	}
 	cpus := cpusCores
 	times, errTimes := cpu.Percent(s.delay/2, true)
+	if len(times) == len(cpus) {
+	}
 	if errTimes == nil {
 		for i, util := range times {
 			cpus[i].Utilization = math.Round(util)
