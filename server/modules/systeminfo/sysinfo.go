@@ -75,7 +75,7 @@ func getConstantInfo() SysMessage {
 	}
 	infoCores, errCpu := cpu.Info()
 	if errCpu == nil {
-		cpus := make([]Cpu, len(infoCores))
+		cpus := make([]Cpu, 0)
 		for _, core := range infoCores {
 			cpus = append(cpus, createCpus(core)...)
 		}
@@ -89,6 +89,7 @@ func getConstantInfo() SysMessage {
 func createCpus(cpuInfo cpu.InfoStat) []Cpu {
 	cpus := make([]Cpu, cpuInfo.Cores)
 	for i := int32(0); i < cpuInfo.Cores; i++ {
+		fmt.Printf("CPU: %v", cpus)
 		cpus[i] = Cpu{
 			ModelName: cpuInfo.ModelName,
 			Mhz:       int(cpuInfo.Mhz),
@@ -108,6 +109,11 @@ func groupCpus(infoCores []Cpu) map[string][]Cpu {
 		}
 		modelCpus := cpus[core.ModelName]
 		cpus[core.ModelName] = append(modelCpus, core)
+	}
+	for _, v := range cpus {
+		for i, cpu := range v {
+			cpu.CPU = int32(i)
+		}
 	}
 	return cpus
 }
