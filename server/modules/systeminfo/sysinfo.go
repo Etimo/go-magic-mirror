@@ -89,11 +89,10 @@ func getConstantInfo() SysMessage {
 func createCpus(cpuInfo cpu.InfoStat) []Cpu {
 	cpus := make([]Cpu, cpuInfo.Cores)
 	for i := int32(0); i < cpuInfo.Cores; i++ {
-		fmt.Printf("CPU: %v", cpus)
 		cpus[i] = Cpu{
 			ModelName: cpuInfo.ModelName,
 			Mhz:       int(cpuInfo.Mhz),
-			CPU:       cpuInfo.CPU,
+			CPU:       int32(0),
 		}
 	}
 	return cpus
@@ -103,17 +102,13 @@ func createCpus(cpuInfo cpu.InfoStat) []Cpu {
 func groupCpus(infoCores []Cpu) map[string][]Cpu {
 
 	cpus := make(map[string][]Cpu, len(infoCores))
-	for _, core := range infoCores {
+	for i, core := range infoCores {
 		if cpus[core.ModelName] == nil {
 			cpus[core.ModelName] = make([]Cpu, 0)
 		}
 		modelCpus := cpus[core.ModelName]
+		core.CPU = int32(i)
 		cpus[core.ModelName] = append(modelCpus, core)
-	}
-	for _, v := range cpus {
-		for i, cpu := range v {
-			cpu.CPU = int32(i)
-		}
 	}
 	return cpus
 }
