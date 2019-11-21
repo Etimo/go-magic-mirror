@@ -62,17 +62,22 @@ func NewGoogleCalendarModule(credentialLocation string) {
 	if ferr != nil {
 		log.Fatal("Can not start google calendar plugin: ", ferr.Error())
 	}
+	//now := time.Now().Format(time.RFC3339)
 	config, err := google.JWTConfigFromJSON(f, calendar.CalendarReadonlyScope)
 	client := config.Client(oauth2.NoContext)
-	cal, err := calendar.New(client)
-	fmt.Printf("Cal: %v and %v\n", cal, err)
-	list, _ := cal.CalendarList.List().Do()
+	gocal, err := calendar.New(client)
+	fmt.Printf("Cal: %v and %v\n", gocal, err)
+	list, _ := gocal.CalendarList.List().MaxResults(10).Do()
 	//fmt.Printf("List: %v and %v\n", list, errCal)
 	fmt.Println("More cal: ", len(list.Items))
 	for _, cal := range list.Items {
 		fmt.Println("This is this calendar: ", cal.Id, cal.Summary)
+		events, _ := gocal.Events.List(cal.Id).MaxResults(10).Do()
+		for _, event := range events.Items {
+			fmt.Printf("Event: %s, %s", event.Start.DateTime, event.ColorId)
+		}
+
 	}
-	cal.Events.List("Kurser").
 }
 func (gc GoogleCalendarModule) init() {
 }
