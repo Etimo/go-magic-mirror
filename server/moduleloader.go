@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/modules"
@@ -34,6 +35,8 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleC
 	var mods = make([]modules.Module, 0)
 	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
+	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
+
 	moduleCreator := map[string]moduleCreator{
 		"systeminfo": systeminfo.SysinfoModule{},
 	}
@@ -61,31 +64,35 @@ func (m ModuleContext) SetupTimedUpdates() {
 //during construction. Message sent from frontend must match the createMessage
 //struct and each module places own demands on the inner message.
 func (m ModuleContext) RecieveCreateMessage() {
-
 	for {
 		incoming := <-m.ReadChannel
-		var response createMessage
-		err := json.Unmarshal(incoming, &response)
+		var request createMessage
+		err := json.Unmarshal(incoming, &request)
 		if err != nil {
 			continue
 		}
-		creator := m.Creators[response.Name]
-		if creator == nil {
-			continue
-		}
-		for _, mod := range m.Modules {
-			//Prevent duplicate module initiations
-			if mod.GetId() == response.ID {
-				continue
-			}
-		}
+		m.handleMessage(request)
+	}
+}
+func (m ModuleContext) handleMessage(request createMessage) {
 
-		mod, err := creator.CreateFromMessage(response.Message, m.WriteChannel)
-		if err == nil {
-			m.Modules = append(m.Modules, mod)
-			go mod.TimedUpdate()
+	creator := m.Creators[request.Name]
+	if creator == nil {
+		return
+	}
+	for _, mod := range m.Modules {
+		//Prevent duplicate module initiations
+		if mod.GetId() == request.ID {
+			log.Printf("There is already a module with id: %s", request.ID)
+			return
 		}
+	}
 
+	mod, err := creator.CreateFromMessage(request.Message, m.WriteChannel)
+	fmt.Printf("DID NOT FIND CREATOR FOR: %s : %v\n", request.Name, m.Creators)
+	if err == nil && mod.GetId() == request.ID {
+		m.Modules = append(m.Modules, mod)
+		go mod.TimedUpdate()
 	}
 }
 

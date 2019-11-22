@@ -1,6 +1,6 @@
-for LINE in $(cat pid.txt); do kill $LINE; done
-pkill go-magic-mirror
+#!/bin/bash
+tskill go-magic-mirror
 go build
-./go-magic-mirror &
-echo  $! > pid.txt
-sleep infinity ||exit 1
+./go-magic-mirror||exit 1
+#echo  $! > pid.txt
+
