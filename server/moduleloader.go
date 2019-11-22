@@ -89,7 +89,6 @@ func (m ModuleContext) handleMessage(request createMessage) {
 	}
 
 	mod, err := creator.CreateFromMessage(request.Message, m.WriteChannel)
-	fmt.Printf("DID NOT FIND CREATOR FOR: %s : %v\n", request.Name, m.Creators)
 	if err == nil && mod.GetId() == request.ID {
 		m.Modules = append(m.Modules, mod)
 		go mod.TimedUpdate()

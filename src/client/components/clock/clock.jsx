@@ -6,7 +6,8 @@ const Clock = ({message,id}) => {
     const component = message == null ?
     <div className="clock" name={id}>
         <h1>
-            23:60
+        <ClockDate message={null}/>
+        <ClockTime message={null}/>
         </h1>
     </div>
     :

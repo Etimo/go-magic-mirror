@@ -2,6 +2,7 @@ package clock
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/models"
@@ -19,9 +20,9 @@ type ClockDate struct {
 	Year  int    `json:"year"`
 }
 type ClockTime struct {
-	Hour   int `json:"hour"`
-	Minute int `json:"minute"`
-	Second int `json:"second"`
+	Hour   string `json:"hour"`
+	Minute string `json:"minute"`
+	Second string `json:"second"`
 }
 type CreateMessage struct {
 	ID    string `json:"id"`
@@ -49,15 +50,22 @@ func (c ClockModule) Update() {
 	var timeNow = time.Now()
 
 	message.ID = c.GetId()
-	message.Time.Hour = timeNow.Hour()
-	message.Time.Minute = timeNow.Minute()
-	message.Time.Second = timeNow.Second()
+	message.Time.Hour = FormatTime(timeNow.Hour())
+	message.Time.Minute = FormatTime(timeNow.Minute())
+	message.Time.Second = FormatTime(timeNow.Second())
 	message.Date.Day = timeNow.Day()
 	message.Date.Month = timeNow.Month().String()
 	message.Date.Year = timeNow.Year()
 	c.writer.Encode(message)
 }
 
+func FormatTime(time int) string {
+	formattedTime := strconv.Itoa(time)
+	if len(formattedTime) < 2 {
+		formattedTime = "0" + formattedTime
+	}
+	return formattedTime
+}
 func (c ClockModule) GetId() string {
 	return c.id
 }
