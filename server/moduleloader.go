@@ -3,8 +3,10 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/etimo/go-magic-mirror/server/modules"
+	"github.com/etimo/go-magic-mirror/server/modules/clock"
 	"github.com/etimo/go-magic-mirror/server/modules/systeminfo"
 )
 
@@ -30,8 +32,8 @@ type moduleCreator modules.Module
 //to the right channels for sending and receiving messsages.
 func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleContext {
 	var mods = make([]modules.Module, 0)
-	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
-
+	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
+	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
 	moduleCreator := map[string]moduleCreator{
 		"systeminfo": systeminfo.SysinfoModule{},
 	}

@@ -4,6 +4,7 @@ import { Component } from 'react';
 import './app.scss';
 import ComponentSocket from './components/component-socket.jsx'
 import SystemInfo from './components/systeminfo/systeminfo.jsx'
+import Clock from './components/clock/clock';
 export default class App extends Component {
 
 state = {
@@ -26,6 +27,7 @@ componentWillmount() {
     return (
       <div>
         <ComponentSocket url="ws://localhost:8080/ws" onmessage={this.state.onmessage}/>
+        <Clock id="clock" message={this.state.clock}/>
         <SystemInfo id="systeminfo" message={this.state.systeminfo}/>
         <SystemInfo id="systeminfo2" message={this.state.systeminfo2}/>
       </div>
