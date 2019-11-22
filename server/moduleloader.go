@@ -66,7 +66,7 @@ func (m ModuleContext) RecieveCreateMessage() {
 	for {
 		incoming := <-m.ReadChannel
 		var request CreateMessage
-		log.Printf("Received %s\n", string(incoming))
+
 		err := json.Unmarshal(incoming, &request)
 		if err != nil {
 			continue
@@ -79,7 +79,6 @@ func (m ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
 
 	creator := m.Creators[request.Name]
 	if creator == nil {
-		log.Printf("TOO BAD! %v\n", request.Name)
 		return
 	}
 	for _, mod := range m.Modules {
