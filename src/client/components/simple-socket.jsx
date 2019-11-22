@@ -14,16 +14,20 @@ class SimpleSocket extends React.Component{
   }
 
   connect= () => {
+        this.setState({
+          messagesSent:false
+        })
         const url = this.buildUrl(this.props.url);
         console.log("Connecting socket ",url," : ",this.props.onmessage);
         let socket = new WebSocket(url);
+        socket.onopen = () => {this.sendMessages(socket);}
         socket.onmessage = this.props.onmessage;
         socket.onerror = this.onError;
         socket.onclose = this.onclose;
-        console.log(this.onClose);
         this.setState({
             socket:socket
         });
+        console.log(this.onClose);
   }
     buildUrl(url){
         if(url.startsWith("ws://")||url.startsWith("wss://")){
@@ -36,10 +40,20 @@ class SimpleSocket extends React.Component{
     }
 	constructor(props) {
         super(props)
-        this.state={};
+    this.state={
+      writeMessages: props.writeMessages == null ? [] : props.writeMessages
+    };
     }
     componentDidMount(){
       this.connect()
+    }
+    sendMessages(socket){
+      this.state.writeMessages.forEach(
+        mess => {
+          socket.send(JSON.stringify(mess));
+          console.log("Sent: ",mess);
+        }
+      );
     }
     render(){
         return <span className="SocketSpan"></span>
