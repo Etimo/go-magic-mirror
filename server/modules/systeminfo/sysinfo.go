@@ -158,6 +158,6 @@ func (s SysinfoModule) CreateFromMessage(message []byte, channel chan []byte) (m
 	if err != nil {
 		return nil, err
 	}
-	//json.Unmarshal(message, &targetMessage)
-	return NewSysInfoModule(channel, targetMessage.ID, time.Duration(targetMessage.Delay)*time.Millisecond), nil
+	return NewSysInfoModule(channel, targetMessage.ID,
+		time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }

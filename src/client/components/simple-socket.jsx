@@ -14,6 +14,7 @@ class SimpleSocket extends React.Component{
   }
 
   connect= () => {
+        console.log("Attempting websocket connection")
         this.setState({
           messagesSent:false
         })

@@ -52,4 +52,5 @@ func StartServer(bindAddress string) {
 func setupModules() {
 	mods = NewModuleContext(sock.WriteChannel, sock.ReadChannel)
 	go mods.SetupTimedUpdates()
+	go mods.RecieveCreateMessage()
 }

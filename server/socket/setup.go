@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	"github.com/etimo/go-magic-mirror/server/models"
 	"github.com/gorilla/websocket"
 )
@@ -20,6 +21,7 @@ type ServerSocket struct {
 	currentWs         *websocket.Conn
 	WriteChannel      chan []byte //This channel should be collected by other components.
 	ReadChannel       chan []byte
+	OpChannel         chan []byte
 	ConnectedCallback func()
 }
 
@@ -37,6 +39,8 @@ func NewServerSocket(callback func()) ServerSocket {
 //to a websocket and store it.
 //Currently allows one connection, reconnecting closes existing connection.
 func (s *ServerSocket) BindWebSocket(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("Establishing connection")
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Could not upgrade connection %v\n", r))
@@ -45,11 +49,13 @@ func (s *ServerSocket) BindWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	if s.currentWs != nil {
 		log.Println("Killing old WS connection")
-		s.currentWs.Close() //Clean slate
+		defer s.currentWs.Close() //Clean slate
+		s.currentWs = nil
 	}
 
 	log.Println("Linking new WS connection")
 	s.currentWs = connection
+	defer s.ReadIncoming(connection)
 
 	json, _ := json.Marshal(models.WelcomeMessage{Message: "Connected socket.."})
 	log.Println("Write to WS connection")
@@ -57,20 +63,22 @@ func (s *ServerSocket) BindWebSocket(w http.ResponseWriter, r *http.Request) {
 	if s.ConnectedCallback != nil {
 		s.ConnectedCallback()
 	}
+	log.Println("Connected new websocket")
 }
 
 //ReadIncoming : Reads messages incoming as byte arrays from the websocket
 //and writes them to the ReadChannel.
-func (s *ServerSocket) ReadIncoming() {
+func (s *ServerSocket) ReadIncoming(ws *websocket.Conn) {
 	for {
-		messageType, message, err := s.currentWs.ReadMessage()
+		messageType, message, err := ws.ReadMessage()
 		if err != nil {
-			log.Fatal("Error reading from socket")
-			continue
+			log.Println("Error reading from socket")
+			break
 		}
-		fmt.Println("Received create message", messageType, " : ", len(message))
 		s.ReadChannel <- message
+		fmt.Println("Received message", messageType, " : ", len(message))
 	}
+	log.Println("Ended readloop")
 }
 func (s *ServerSocket) WriteWaiting() {
 	for {
@@ -83,8 +91,6 @@ func (s *ServerSocket) WriteWaiting() {
 		err := s.currentWs.WriteMessage(websocket.TextMessage, writeByte)
 		if err != nil {
 			fmt.Printf("Err writing to socket: %v\n", err)
-			_ = s.currentWs.Close()
-			s.currentWs = nil
 		}
 	}
 

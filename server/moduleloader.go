@@ -19,10 +19,9 @@ type ModuleContext struct {
 	WriteChannel chan []byte
 	ReadChannel  chan []byte
 }
-type createMessage struct {
-	Name    string `json:"name"`
-	ID      string `json:"id"`
-	Message []byte `json:"message"`
+type CreateMessage struct {
+	Name string `json:"name"`
+	ID   string `json:"id"`
 }
 
 type moduleCreator modules.Module
@@ -33,9 +32,9 @@ type moduleCreator modules.Module
 //to the right channels for sending and receiving messsages.
 func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleContext {
 	var mods = make([]modules.Module, 0)
-	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
+	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
-	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
+	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
 
 	moduleCreator := map[string]moduleCreator{
 		"systeminfo": systeminfo.SysinfoModule{},
@@ -66,18 +65,21 @@ func (m ModuleContext) SetupTimedUpdates() {
 func (m ModuleContext) RecieveCreateMessage() {
 	for {
 		incoming := <-m.ReadChannel
-		var request createMessage
+		var request CreateMessage
+		log.Printf("Received %s\n", string(incoming))
 		err := json.Unmarshal(incoming, &request)
 		if err != nil {
 			continue
 		}
-		m.handleMessage(request)
+		log.Printf("Received createione %v\n", request)
+		m.handleMessage(request, incoming)
 	}
 }
-func (m ModuleContext) handleMessage(request createMessage) {
+func (m ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
 
 	creator := m.Creators[request.Name]
 	if creator == nil {
+		log.Printf("TOO BAD! %v\n", request.Name)
 		return
 	}
 	for _, mod := range m.Modules {
@@ -88,11 +90,11 @@ func (m ModuleContext) handleMessage(request createMessage) {
 		}
 	}
 
-	mod, err := creator.CreateFromMessage(request.Message, m.WriteChannel)
-	fmt.Printf("DID NOT FIND CREATOR FOR: %s : %v\n", request.Name, m.Creators)
+	mod, err := creator.CreateFromMessage(incoming, m.WriteChannel)
 	if err == nil && mod.GetId() == request.ID {
 		m.Modules = append(m.Modules, mod)
 		go mod.TimedUpdate()
+		log.Printf("Added %v %v!", mod, err)
 	}
 }
 
