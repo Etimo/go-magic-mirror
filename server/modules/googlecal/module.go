@@ -1,89 +1,94 @@
 package googlecal
 
 import (
-	"fmt"
-	"io/ioutil"
+	"encoding/json"
 	"log"
-
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/calendar/v3"
+	"regexp"
+	"time"
 )
 
+type EventSource interface {
+	GetEvents(startDateTime string,
+		stopDateTime string,
+		numberOfEvents int) []UpdateMessage
+}
+
+type createMessage struct {
+	ApiKeyFile string   `json:"keyFile"`
+	Calendars  []string `json:"calendars"`
+	Id         string   `json:"id"`
+}
 type GoogleCalendarModule struct {
-	ApiKeyFile string
-	Calendars  []string
-	Id         string
-	Channel    chan []byte
+	ApiKeyFile  string
+	Calendars   []string
+	Id          string
+	Channel     chan []byte
+	EventSource EventSource
+}
+type EventMessage struct {
+	Summary     string `json:"summary"`
+	StartTime   string `json:"startTime"`
+	EndTime     string `json:"endTime"`
+	ColorId     string `json:"colorId"`
+	CreatorName string `json:"creatorName"`
+}
+type UpdateMessage struct {
+	CalendarName string         `json:"calendarName"`
+	Events       []EventMessage `json:"currentEvents"`
 }
 
-/*func connectWithToken(config *oauth2.Config, tokenFile string) (*http.Client, error) {
-	token, err := readToken(tokenFile, config)
-	if err != nil {
-		token = queryWebToken(config)
-	}
-	return config.Client(context.Background(), token), nil
-}
-
-// Use a JSON token for a service account, this service account should have relevant calendars shared.
-func readToken(file string, config *oauth2.Config) (*oauth2.Token, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		queryWebToken(config)
-	}
-	defer f.Close()
-	tok := &oauth2.Token{}
-	err = json.NewDecoder(f).Decode(tok) //If it's not great JSON this won't work.
-	return tok, err
-}
-
-// Server auth flow.
-func queryWebToken(config *oauth2.Config) *oauth2.Token {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-
-	fmt.Printf("Link calendar at this URL:\n%v\n", authURL)
-	fmt.Println("Token will be stored on disk. Do not accidentally commit.")
-
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to retrieve authorization code: %v", err)
-	}
-
-	tok, err := config.Exchange(context.TODO(), authCode)
-
-	if err != nil {
-		log.Fatalf("Problem during token exchange: %v", err)
-	}
-	return tok
-}*/
-
-func NewGoogleCalendarModule(credentialLocation string) {
-	f, ferr := ioutil.ReadFile(credentialLocation)
-	if ferr != nil {
-		log.Fatal("Can not start google calendar plugin: ", ferr.Error())
-	}
-	//now := time.Now().Format(time.RFC3339)
-	config, err := google.JWTConfigFromJSON(f, calendar.CalendarReadonlyScope)
-	client := config.Client(oauth2.NoContext)
-	gocal, err := calendar.New(client)
-	fmt.Printf("Cal: %v and %v\n", gocal, err)
-	list, _ := gocal.CalendarList.List().MaxResults(10).Do()
-	//fmt.Printf("List: %v and %v\n", list, errCal)
-	fmt.Println("More cal: ", len(list.Items))
-	for _, cal := range list.Items {
-		fmt.Println("This is this calendar: ", cal.Id, cal.Summary)
-		events, _ := gocal.Events.List(cal.Id).MaxResults(10).Do()
-		for _, event := range events.Items {
-			fmt.Printf("Event: %s, %s", event.Start.DateTime, event.ColorId)
+func matchCalendar(expressions []string,
+	calendarString string) bool {
+	for _, val := range expressions {
+		match, _ := regexp.MatchString(val, calendarString)
+		if match {
+			return true
 		}
 
 	}
+	return false
 }
-func (gc GoogleCalendarModule) init() {
+func NewGoogleCalendarModuleAlternativeSource(es EventSource,
+	id string,
+	writeChannel chan []byte) GoogleCalendarModule {
+	return GoogleCalendarModule{
+		Id:          id,
+		EventSource: es,
+		Channel:     writeChannel,
+	}
+
 }
+func NewGoogleCalendarModule(
+	credentialLocation string,
+	id string,
+	calendarDescriptors []string,
+	writeChannel chan []byte,
+) GoogleCalendarModule {
+	eventSource, err := createGoogleCalendarSource(credentialLocation, calendarDescriptors)
+	if err != nil {
+		log.Println("Could not create google calendar plugin with ID:,",
+			id, ": ", err.Error())
+	}
+	return GoogleCalendarModule{
+		Id:          id,
+		EventSource: eventSource,
+		Channel:     writeChannel,
+	}
+}
+
 func (gc GoogleCalendarModule) Update() {
+	now := time.Now() //.Format(time.RFC3339)
+	startOfDay := time.Date(now.Year(), now.Month(), now.Year(), 0, 0, 0, 0, time.Local)
+	oneMoreWeek := startOfDay.Add(time.Hour * 24 * 7)
+	events := gc.EventSource.GetEvents(startOfDay.Format(time.RFC3339),
+		oneMoreWeek.Format(time.RFC3339),
+		99)
+	bytes, _ := json.Marshal(events)
+	gc.Channel <- bytes
 }
 func (gc GoogleCalendarModule) TimedUpdate() {
+	time.Sleep(time.Second * 15)
+	gc.Update()
 }
 func (gc GoogleCalendarModule) GetId() string {
 	return gc.Id
