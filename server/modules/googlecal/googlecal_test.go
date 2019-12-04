@@ -18,7 +18,8 @@ func TestActualUpdate(t *testing.T) {
 		writeChannel,
 	)
 	fmt.Printf("Mod: %v\n", module)
-	var message UpdateMessage
+	module.Update()
+	var message []UpdateMessage
 	err := json.Unmarshal(<-writeChannel, &message)
 	if err != nil {
 		log.Println("Failed tes, could not unmarshal output: ", err.Error())

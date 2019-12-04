@@ -78,17 +78,18 @@ func NewGoogleCalendarModule(
 
 func (gc GoogleCalendarModule) Update() {
 	now := time.Now() //.Format(time.RFC3339)
-	startOfDay := time.Date(now.Year(), now.Month(), now.Year(), 0, 0, 0, 0, time.Local)
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 	oneMoreWeek := startOfDay.Add(time.Hour * 24 * 7)
-	events := gc.EventSource.GetEvents(startOfDay.Format(time.RFC3339),
+	events := gc.EventSource.GetEvents(
+		startOfDay.Format(time.RFC3339),
 		oneMoreWeek.Format(time.RFC3339),
 		99)
 	bytes, _ := json.Marshal(events)
 	gc.Channel <- bytes
 }
 func (gc GoogleCalendarModule) TimedUpdate() {
-	time.Sleep(time.Second * 15)
 	gc.Update()
+	time.Sleep(time.Second * 15)
 }
 func (gc GoogleCalendarModule) GetId() string {
 	return gc.Id
