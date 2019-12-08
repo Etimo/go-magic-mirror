@@ -3,20 +3,24 @@ package googlecal
 import (
 	"encoding/json"
 	"log"
+	"os"
 	"regexp"
 	"time"
+
+	"github.com/etimo/go-magic-mirror/server/modules"
 )
+
+const CONFIG_ENV_VARIABLE = "MAGIC_MIRROR_SERVICE_LOCATION"
 
 type EventSource interface {
 	GetEvents(startDateTime string,
 		stopDateTime string,
-		numberOfEvents int) []UpdateMessage
+		numberOfEvents int, initialLoog bool) []UpdateMessage
 }
 
-type createMessage struct {
-	ApiKeyFile string   `json:"keyFile"`
-	Calendars  []string `json:"calendars"`
-	Id         string   `json:"id"`
+type CreateMessage struct {
+	Calendars []string `json:"calendars"`
+	Id        string   `json:"id"`
 }
 type GoogleCalendarModule struct {
 	ApiKeyFile  string
@@ -35,6 +39,10 @@ type EventMessage struct {
 type UpdateMessage struct {
 	CalendarName string         `json:"calendarName"`
 	Events       []EventMessage `json:"currentEvents"`
+}
+type Message struct {
+	Id      string          `json:"calendarName"`
+	Updates []UpdateMessage `json:"calendars"`
 }
 
 func matchCalendar(expressions []string,
@@ -59,12 +67,12 @@ func NewGoogleCalendarModuleAlternativeSource(es EventSource,
 
 }
 func NewGoogleCalendarModule(
-	credentialLocation string,
 	id string,
 	calendarDescriptors []string,
 	writeChannel chan []byte,
 ) GoogleCalendarModule {
-	eventSource, err := createGoogleCalendarSource(credentialLocation, calendarDescriptors)
+	config := os.Getenv(CONFIG_ENV_VARIABLE)
+	eventSource, err := createGoogleCalendarSource(config, calendarDescriptors)
 	if err != nil {
 		log.Println("Could not create google calendar plugin with ID:,",
 			id, ": ", err.Error())
@@ -76,21 +84,45 @@ func NewGoogleCalendarModule(
 	}
 }
 
-func (gc GoogleCalendarModule) Update() {
+/**
+*initialLoad sets if the eventsource should check for NEW events
+*before sending and update message.
+ */
+func (gc GoogleCalendarModule) getEvents(initialLoad bool) {
 	now := time.Now() //.Format(time.RFC3339)
 	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 	oneMoreWeek := startOfDay.Add(time.Hour * 24 * 7)
 	events := gc.EventSource.GetEvents(
 		startOfDay.Format(time.RFC3339),
 		oneMoreWeek.Format(time.RFC3339),
-		99)
-	bytes, _ := json.Marshal(events)
+		99,
+		initialLoad)
+	bytes, _ := json.Marshal(
+		Message{
+			Id:      gc.Id,
+			Updates: events,
+		},
+	)
 	gc.Channel <- bytes
 }
+func (gc GoogleCalendarModule) Update() {
+	gc.getEvents(true)
+}
 func (gc GoogleCalendarModule) TimedUpdate() {
-	gc.Update()
-	time.Sleep(time.Second * 15)
+	gc.getEvents(false)
+	time.Sleep(time.Second * 5)
 }
 func (gc GoogleCalendarModule) GetId() string {
 	return gc.Id
+}
+func (gc GoogleCalendarModule) CreateFromMessage(messageBytes []byte, channel chan []byte) (modules.Module, error) {
+	var module GoogleCalendarModule
+	var message CreateMessage
+	err := json.Unmarshal(messageBytes, &message)
+	if err != nil {
+		log.Println("Could not construct google calendar message from bytes")
+		return module, err
+	}
+	return NewGoogleCalendarModule(message.Id, message.Calendars, channel), nil
+
 }

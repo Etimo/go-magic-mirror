@@ -8,6 +8,7 @@ import (
 
 	"github.com/etimo/go-magic-mirror/server/modules"
 	"github.com/etimo/go-magic-mirror/server/modules/clock"
+	"github.com/etimo/go-magic-mirror/server/modules/googlecal"
 	"github.com/etimo/go-magic-mirror/server/modules/systeminfo"
 )
 
@@ -24,7 +25,9 @@ type CreateMessage struct {
 	ID   string `json:"id"`
 }
 
-type moduleCreator modules.Module
+type moduleCreator interface {
+	CreateFromMessage([]byte, chan []byte) (modules.Module, error)
+}
 
 //NewModuleContext creates a moduleContext with default set of modules,
 //and module creators.
@@ -37,7 +40,8 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleC
 	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
 
 	moduleCreator := map[string]moduleCreator{
-		"systeminfo": systeminfo.SysinfoModule{},
+		"systeminfo":     systeminfo.SysinfoModule{},
+		"googlecalendar": googlecal.GoogleCalendarModule{},
 	}
 	return ModuleContext{
 		Modules:      mods,
@@ -75,7 +79,7 @@ func (m ModuleContext) RecieveCreateMessage() {
 		m.handleMessage(request, incoming)
 	}
 }
-func (m ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
+func (m *ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
 
 	creator := m.Creators[request.Name]
 	if creator == nil {
@@ -93,7 +97,7 @@ func (m ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
 	if err == nil && mod.GetId() == request.ID {
 		m.Modules = append(m.Modules, mod)
 		go mod.TimedUpdate()
-		log.Printf("Added %v %v!", mod, err)
+		log.Printf("Added %v %v %d!", mod, err, len(m.Modules))
 	}
 }
 

@@ -41,14 +41,17 @@ func (gc googleCalendarSource) CheckUpdated(calendarId string) bool {
 }
 
 func (gc googleCalendarSource) GetEvents(
-	startDateTime string, stopDateTime string, numberOfEvents int) []UpdateMessage {
+	startDateTime string, stopDateTime string, numberOfEvents int, initialLoad bool) []UpdateMessage {
 	returnMessages := make([]UpdateMessage, len(gc.googleCalendarIds))
 	for i, calendarId := range gc.googleCalendarIds {
-		if !gc.CheckUpdated(calendarId) {
+		if !initialLoad && !gc.CheckUpdated(calendarId) {
 			log.Println("No updates for calendar: ", calendarId, " : ", gc.calendars[i])
 			continue
 		}
-		eventMessages := gc.getEventMessages(startDateTime, stopDateTime, gc.calendars[i], calendarId)
+		eventMessages := gc.getEventMessages(startDateTime,
+			stopDateTime,
+			gc.calendars[i],
+			calendarId)
 		returnMessages[i] = UpdateMessage{
 			CalendarName: gc.calendars[i],
 			Events:       eventMessages,
@@ -117,12 +120,6 @@ func createGoogleCalendarSource(
 			calendarNames = append(calendarNames, cal.Summary)
 			calendarIds = append(calendarIds, cal.Id)
 		}
-		/*Todo:Remove
-		events, _ := gocal.Events.List(cal.Id).Do()
-		fmt.Println("This is this calendar: ", cal.Id, cal.Summary)
-		for _, event := range events.Items {
-			fmt.Printf("Event: %s, %s, %s, %v, %s", event.Start.DateTime, event.ColorId, event.ColorId, event.Summary, event.End.DateTime)
-		}*/
 	}
 	return googleCalendarSource{
 		configFile:        credentialLocation,
