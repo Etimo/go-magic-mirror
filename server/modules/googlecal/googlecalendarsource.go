@@ -43,6 +43,7 @@ func (gc googleCalendarSource) CheckUpdated(calendarId string) bool {
 func (gc googleCalendarSource) GetEvents(
 	startDateTime string, stopDateTime string, numberOfEvents int, initialLoad bool) []UpdateMessage {
 	returnMessages := make([]UpdateMessage, len(gc.googleCalendarIds))
+//	log.Println("Initial loaaaad!", initialLoad)
 	for i, calendarId := range gc.googleCalendarIds {
 		if !initialLoad && !gc.CheckUpdated(calendarId) {
 			log.Println("No updates for calendar: ", calendarId, " : ", gc.calendars[i])

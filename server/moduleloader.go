@@ -15,10 +15,11 @@ import (
 //ModuleContext : struct that contains array of all server side modules,
 //and connects them with the correct channel for sending messages.
 type ModuleContext struct {
-	Modules      []modules.Module
-	Creators     map[string]moduleCreator
-	WriteChannel chan []byte
-	ReadChannel  chan []byte
+	Modules         []modules.Module
+	Creators        map[string]moduleCreator
+	WriteChannel    chan []byte
+	ReadChannel     chan []byte
+	CallbackChannel chan bool
 }
 type CreateMessage struct {
 	Name string `json:"name"`
@@ -33,7 +34,7 @@ type moduleCreator interface {
 //and module creators.
 //The module context contains all modules initiated serverside and connects them
 //to the right channels for sending and receiving messsages.
-func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleContext {
+func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbackChannel chan bool) ModuleContext {
 	var mods = make([]modules.Module, 0)
 	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
@@ -44,10 +45,11 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte) ModuleC
 		"googlecalendar": googlecal.GoogleCalendarModule{},
 	}
 	return ModuleContext{
-		Modules:      mods,
-		Creators:     moduleCreator,
-		WriteChannel: writeChannel,
-		ReadChannel:  readChannel,
+		Modules:         mods,
+		Creators:        moduleCreator,
+		WriteChannel:    writeChannel,
+		ReadChannel:     readChannel,
+		CallbackChannel: callbackChannel,
 	}
 
 }
@@ -66,7 +68,7 @@ func (m ModuleContext) SetupTimedUpdates() {
 //modules on the server. This can be used instead of creating them on the server
 //during construction. Message sent from frontend must match the createMessage
 //struct and each module places own demands on the inner message.
-func (m ModuleContext) RecieveCreateMessage() {
+func RecieveCreateMessage(m *ModuleContext) {
 	for {
 		incoming := <-m.ReadChannel
 		var request CreateMessage
@@ -76,10 +78,10 @@ func (m ModuleContext) RecieveCreateMessage() {
 			continue
 		}
 		log.Printf("Received createione %v\n", request)
-		m.handleMessage(request, incoming)
+		handleMessage(request, incoming, m)
 	}
 }
-func (m *ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
+func handleMessage(request CreateMessage, incoming []byte, m *ModuleContext) {
 
 	creator := m.Creators[request.Name]
 	if creator == nil {
@@ -100,12 +102,19 @@ func (m *ModuleContext) handleMessage(request CreateMessage, incoming []byte) {
 		log.Printf("Added %v %v %d!", mod, err, len(m.Modules))
 	}
 }
+func ReadCallback(m *ModuleContext) {
+	for {
+		<-m.CallbackChannel
+		initialMessages(m)
+	}
+}
 
 //InitialMessages sends updates for all current modules
 //Will be called when a new WS is established to send initial data.
-func (m ModuleContext) InitialMessages() {
-	for _, module := range m.Modules {
-		module.Update()
+func initialMessages(m *ModuleContext) {
+	for _, mod := range m.Modules {
+		fmt.Printf("Updating module: %v", mod)
+		mod.Update()
 	}
 
 }

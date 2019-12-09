@@ -11,46 +11,53 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var mods ModuleContext
-var sock socket.ServerSocket
-var contrl controllers.Controllers
+type Server struct {
+	mods   *ModuleContext
+	sock   *socket.ServerSocket
+	contrl controllers.Controllers
+}
 
-func baseSetup() {
-
-	sock = socket.NewServerSocket(nil)
-	contrl = controllers.Controllers{
-		SocketChannel: sock.WriteChannel,
+func (s *Server) baseSetup() {
+	sock := socket.NewServerSocket(make(chan bool, 20))
+	s.sock = &sock
+	s.contrl = controllers.Controllers{
+		SocketChannel: s.sock.WriteChannel,
 	}
-	go sock.WriteWaiting()
+	go s.sock.WriteWaiting()
 
 }
 func StartServer(bindAddress string) {
-	baseSetup()
+	s := Server{}
+	s.baseSetup()
 
 	router := mux.NewRouter()
 	router.Handle("/public", http.FileServer(http.Dir("./public")))
 
-	router.HandleFunc("/ws", sock.BindWebSocket)
-	router.HandleFunc("/forward", contrl.WriteToChannel).Methods(http.MethodPost)
+	router.HandleFunc("/ws", s.sock.BindWebSocket)
+	router.HandleFunc("/forward", s.contrl.WriteToChannel).Methods(http.MethodPost)
 
 	router.PathPrefix("/").Handler(
 		http.StripPrefix("/",
 			http.FileServer(http.Dir("./dist"))))
 	//Handlers are methods called on all routes they are registered for,
 	//here we register a LoggingHandler for access-tracking and a recovery (crash-handler)
-
 	handler := HandleError(
 		handlers.LoggingHandler(os.Stdout, router))
 	router.HandleFunc("/panictest", func(w http.ResponseWriter, r *http.Request) {
 		panic("This is a triggered panic")
 	})
-	setupModules()
-	sock.ConnectedCallback = mods.InitialMessages
+	s.setupModules()
 	log.Fatal(http.ListenAndServe(bindAddress, handler))
 
 }
-func setupModules() {
-	mods = NewModuleContext(sock.WriteChannel, sock.ReadChannel)
+
+func (s *Server) setupModules() {
+	mods := NewModuleContext(s.sock.WriteChannel,
+		s.sock.ReadChannel,
+		s.sock.CallbackChannel)
+	s.mods = &mods
+	s.sock.CallbackChannel = s.mods.CallbackChannel
 	go mods.SetupTimedUpdates()
-	go mods.RecieveCreateMessage()
+	go RecieveCreateMessage(s.mods)
+	go ReadCallback(s.mods)
 }

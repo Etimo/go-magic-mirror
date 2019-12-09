@@ -40,7 +40,7 @@ func (tm TestModule) CreateFromMessage(bytes []byte, channel chan []byte) (modul
 func setupContext() *ModuleContext {
 	writeChannel := make(chan []byte, 5000)
 	readChannel := make(chan []byte, 5000)
-	context := NewModuleContext(writeChannel, readChannel)
+	context := NewModuleContext(writeChannel, readChannel, make(chan bool, 1))
 	context.Modules = make([]modules.Module, 0)
 	makers := map[string]moduleCreator{
 		"test": TestModule{},
@@ -61,7 +61,7 @@ func TestCreationViaMessage(t *testing.T) {
 		ID:   createId,
 	}
 
-	context.handleMessage(message, jsonCreate)
+	handleMessage(message, jsonCreate, context)
 	fmt.Println("MODULES! ", len(context.Modules))
 	if len(context.Modules) == 0 {
 		log.Fatal("Did not create module")
@@ -71,7 +71,7 @@ func TestCreationViaMessage(t *testing.T) {
 		log.Fatal("Did not create with correct id: ", context.Modules[0].GetId(), " : expected ", createId)
 		t.Fail()
 	}
-	context.handleMessage(message, jsonCreate)
+	handleMessage(message, jsonCreate, context)
 	if len(context.Modules) != 1 {
 		log.Fatal("Created module with duplicate id")
 		t.Fail()

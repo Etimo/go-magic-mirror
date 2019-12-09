@@ -41,7 +41,7 @@ type UpdateMessage struct {
 	Events       []EventMessage `json:"currentEvents"`
 }
 type Message struct {
-	Id      string          `json:"calendarName"`
+	Id      string          `json:"id"`
 	Updates []UpdateMessage `json:"calendars"`
 }
 

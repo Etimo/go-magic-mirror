@@ -18,20 +18,20 @@ var upgrader = websocket.Upgrader{
 
 //ServerSocket : Represents a socket connection to the backend, will only allow one concurrent connection.
 type ServerSocket struct {
-	currentWs         *websocket.Conn
-	WriteChannel      chan []byte //This channel should be collected by other components.
-	ReadChannel       chan []byte
-	OpChannel         chan []byte
-	ConnectedCallback func()
+	currentWs       *websocket.Conn
+	WriteChannel    chan []byte //This channel should be collected by other components.
+	ReadChannel     chan []byte
+	OpChannel       chan []byte
+	CallbackChannel chan bool
 }
 
 //NewServerSocket : Will create a new ServerSocket that can listen for connections.
 //callback : This function will be called every time a socket connection is established
-func NewServerSocket(callback func()) ServerSocket {
+func NewServerSocket(callbackChannel chan bool) ServerSocket {
 	return ServerSocket{
-		WriteChannel:      make(chan []byte, 20),
-		ReadChannel:       make(chan []byte, 20),
-		ConnectedCallback: callback,
+		WriteChannel:    make(chan []byte, 20),
+		ReadChannel:     make(chan []byte, 20),
+		CallbackChannel: callbackChannel,
 	}
 }
 
@@ -60,10 +60,19 @@ func (s *ServerSocket) BindWebSocket(w http.ResponseWriter, r *http.Request) {
 	json, _ := json.Marshal(models.WelcomeMessage{Message: "Connected socket.."})
 	log.Println("Write to WS connection")
 	s.WriteChannel <- json
-	if s.ConnectedCallback != nil {
-		s.ConnectedCallback()
-	}
+	s.callbackTrigger()
 	log.Println("Connected new websocket")
+}
+func (s *ServerSocket) callbackTrigger() {
+	if s.CallbackChannel != nil {
+		log.Println("Running on connection callback")
+		select {
+		case s.CallbackChannel <- true:
+			log.Println("Triggered callback channel")
+		default:
+			log.Println("Callback channel is full")
+		}
+	}
 }
 
 //ReadIncoming : Reads messages incoming as byte arrays from the websocket
