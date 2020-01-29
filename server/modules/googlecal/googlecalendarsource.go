@@ -2,7 +2,6 @@ package googlecal
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -43,7 +42,7 @@ func (gc googleCalendarSource) CheckUpdated(calendarId string) bool {
 func (gc googleCalendarSource) GetEvents(
 	startDateTime string, stopDateTime string, numberOfEvents int, initialLoad bool) []UpdateMessage {
 	returnMessages := make([]UpdateMessage, len(gc.googleCalendarIds))
-//	log.Println("Initial loaaaad!", initialLoad)
+	//	log.Println("Initial loaaaad!", initialLoad)
 	for i, calendarId := range gc.googleCalendarIds {
 		if !initialLoad && !gc.CheckUpdated(calendarId) {
 			log.Println("No updates for calendar: ", calendarId, " : ", gc.calendars[i])
@@ -61,7 +60,6 @@ func (gc googleCalendarSource) GetEvents(
 	return returnMessages
 }
 func (gc googleCalendarSource) getEventMessages(startDateTime, stopDateTime, calendarName, calendarId string) []EventMessage {
-	fmt.Println(startDateTime, " : ", stopDateTime)
 	list, err := gc.client.Events.List(calendarId).
 		TimeMin(startDateTime).
 		TimeMax(stopDateTime).
@@ -83,7 +81,7 @@ func createEventMessage(event *calendar.Event) EventMessage {
 		StartTime:   event.Start.DateTime,
 		EndTime:     event.End.DateTime,
 		ColorId:     event.ColorId,
-		CreatorName: event.Creator.DisplayName,
+		CreatorName: event.Creator.Email,
 	}
 }
 func createGoogleCalendarSource(
@@ -117,6 +115,7 @@ func createGoogleCalendarSource(
 	calendarNames := make([]string, 0)
 	calendarIds := make([]string, 0)
 	for _, cal := range list.Items {
+		log.Println("Calendar: ", cal.Summary)
 		if matchCalendar(calendarDescriptors, cal.Summary) || matchCalendar(calendarDescriptors, cal.Id) {
 			calendarNames = append(calendarNames, cal.Summary)
 			calendarIds = append(calendarIds, cal.Id)
