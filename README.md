@@ -22,7 +22,11 @@ This will run the frontend using "webpack-dev-server" on localhost:3000 and the 
 - Run only server 'npm run server' or 'yarn server'
 - The server part can also be built using `go build`
 
+## Building for ARMv7
+To build an ARMv7 compatible binary and dist folder for the Raspberry Pi 3 and up. Run the following command:
+`export GO_ARM=7; export GO_ARCH=arm; yarn build`
 ## Architecture:
 
-The frontend opens a websocket to the backend, currently only a single
+The frontend opens a websocket to the backend, currently only a single connection to the backend is allowed.
+
 
