@@ -23,7 +23,7 @@ type ModuleContext struct {
 }
 type CreateMessage struct {
 	Name string `json:"name"`
-	ID   string `json:"id"`
+	Id   string `json:"Id"`
 }
 
 type moduleCreator interface {
@@ -89,14 +89,14 @@ func handleMessage(request CreateMessage, incoming []byte, m *ModuleContext) {
 	}
 	for _, mod := range m.Modules {
 		//Prevent duplicate module initiations
-		if mod.GetId() == request.ID {
-			log.Printf("There is already a module with id: %s", request.ID)
+		if mod.GetId() == request.Id {
+			log.Printf("There is already a module with Id: %s", request.Id)
 			return
 		}
 	}
 
 	mod, err := creator.CreateFromMessage(incoming, m.WriteChannel)
-	if err == nil && mod.GetId() == request.ID {
+	if err == nil && mod.GetId() == request.Id {
 		m.Modules = append(m.Modules, mod)
 		go mod.TimedUpdate()
 		log.Printf("Added %v %v %d!", mod, err, len(m.Modules))

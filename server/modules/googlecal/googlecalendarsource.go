@@ -39,10 +39,11 @@ func (gc googleCalendarSource) CheckUpdated(calendarId string) bool {
 	return false
 }
 
+//GetEvents queries google calendar for a specific number of events situated within the enclosing period.
 func (gc googleCalendarSource) GetEvents(
 	startDateTime string, stopDateTime string, numberOfEvents int, initialLoad bool) []UpdateMessage {
 	returnMessages := make([]UpdateMessage, len(gc.googleCalendarIds))
-	//	log.Println("Initial loaaaad!", initialLoad)
+
 	for i, calendarId := range gc.googleCalendarIds {
 		if !initialLoad && !gc.CheckUpdated(calendarId) {
 			log.Println("No updates for calendar: ", calendarId, " : ", gc.calendars[i])
@@ -91,18 +92,18 @@ func createGoogleCalendarSource(
 	f, ferr := ioutil.ReadFile(credentialLocation)
 	if ferr != nil {
 		log.Println("Can not start google calendar plugin: ", ferr.Error())
-		return nil, errors.New("Could not read credential file!")
+		return nil, errors.New("could not read credential file")
 	}
 	config, err := google.JWTConfigFromJSON(f, calendar.CalendarReadonlyScope)
 	if err != nil {
 		log.Println("Error creating config from JWT: ", err.Error())
-		return nil, errors.New("Could not read the provided credential as JWT key")
+		return nil, errors.New("could not read the provided credential as JWT key")
 	}
 	client := config.Client(oauth2.NoContext)
 	gocal, err := calendar.New(client)
 	if err != nil {
 		log.Println("Error creating calendar client: ", err.Error())
-		return nil, errors.New("Could not create google connection client")
+		return nil, errors.New("could not create google connection client")
 	}
 	//fmt.Printf("Cal: %v and %v\n", gocal, err)
 	list, errCal := gocal.CalendarList.List().MaxResults(999).Do()

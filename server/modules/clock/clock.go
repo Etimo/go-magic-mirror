@@ -10,7 +10,7 @@ import (
 )
 
 type ClockMessage struct {
-	ID   string    `json:"id"`
+	Id   string    `json:"Id"`
 	Date ClockDate `json:"date"`
 	Time ClockTime `json:"time"`
 }
@@ -25,21 +25,21 @@ type ClockTime struct {
 	Second string `json:"second"`
 }
 type CreateMessage struct {
-	ID    string `json:"id"`
+	Id    string `json:"Id"`
 	Delay int    `json:"delay"`
 }
 type ClockModule struct {
 	writer *json.Encoder
-	id     string
+	Id     string
 	delay  time.Duration
 }
 
 func NewClockModule(channel chan []byte,
-	id string,
+	Id string,
 	delayInfoPush time.Duration) ClockModule {
 	return ClockModule{
 		writer: json.NewEncoder(models.ChannelWriter{Channel: channel}),
-		id:     id,
+		Id:     Id,
 		delay:  delayInfoPush,
 	}
 }
@@ -49,7 +49,7 @@ func (c ClockModule) Update() {
 
 	var timeNow = time.Now()
 
-	message.ID = c.GetId()
+	message.Id = c.GetId()
 	message.Time.Hour = FormatTime(timeNow.Hour())
 	message.Time.Minute = FormatTime(timeNow.Minute())
 	message.Time.Second = FormatTime(timeNow.Second())
@@ -67,7 +67,7 @@ func FormatTime(time int) string {
 	return formattedTime
 }
 func (c ClockModule) GetId() string {
-	return c.id
+	return c.Id
 }
 
 func (c ClockModule) TimedUpdate() {
@@ -83,5 +83,5 @@ func (c ClockModule) CreateFromMessage(message []byte, channel chan []byte) (mod
 	if err != nil {
 		return nil, err
 	}
-	return NewClockModule(channel, targetMessage.ID, time.Duration(targetMessage.Delay)*time.Millisecond), nil
+	return NewClockModule(channel, targetMessage.Id, time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }

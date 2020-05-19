@@ -30,7 +30,7 @@ this.state = {
     console.log("message here:"+event.data);
     const data = JSON.parse(event.data);
     var stateUpdate = {}
-    stateUpdate[data.id]=data;
+    stateUpdate[data.Id]=data;
     this.setState(stateUpdate);
   };
 

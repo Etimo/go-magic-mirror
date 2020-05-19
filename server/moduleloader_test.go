@@ -10,7 +10,7 @@ import (
 )
 
 type TestModule struct {
-	id string
+	Id string
 }
 
 func (tm TestModule) Update() {
@@ -18,7 +18,7 @@ func (tm TestModule) Update() {
 func (tm TestModule) TimedUpdate() {
 }
 func (tm TestModule) GetId() string {
-	return tm.id
+	return tm.Id
 }
 
 type TestCreationMessage struct {
@@ -33,7 +33,7 @@ func (tm TestModule) CreateFromMessage(bytes []byte, channel chan []byte) (modul
 	}
 	fmt.Printf("BLESS THIS MESS: %v\n", mess)
 	return TestModule{
-		id: mess.Id,
+		Id: mess.Id,
 	}, nil
 }
 
@@ -58,7 +58,7 @@ func TestCreationViaMessage(t *testing.T) {
 	})
 	message := CreateMessage{
 		Name: "test",
-		ID:   createId,
+		Id:   createId,
 	}
 
 	handleMessage(message, jsonCreate, context)
@@ -68,12 +68,12 @@ func TestCreationViaMessage(t *testing.T) {
 		t.Fail()
 	}
 	if context.Modules[0].GetId() != createId {
-		log.Fatal("Did not create with correct id: ", context.Modules[0].GetId(), " : expected ", createId)
+		log.Fatal("Did not create with correct Id: ", context.Modules[0].GetId(), " : expected ", createId)
 		t.Fail()
 	}
 	handleMessage(message, jsonCreate, context)
 	if len(context.Modules) != 1 {
-		log.Fatal("Created module with duplicate id")
+		log.Fatal("Created module with duplicate Id")
 		t.Fail()
 	}
 }
