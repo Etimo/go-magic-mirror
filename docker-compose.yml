@@ -1,0 +1,12 @@
+version: '3'
+services:
+  magic-mirror:
+    build: .
+    ports:
+      - 3000:3000
+      - 8080:8080
+    volumes:
+      - .:/go/src/go-magic-mirror
+      - /go/src/go-magic-mirror/node_modules/
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["yarn dev"]
