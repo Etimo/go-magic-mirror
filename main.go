@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"go-magic-mirror/server"
+	"github.com/etimo/go-magic-mirror/server"
 )
 
 const bindAddress = "0.0.0.0:8080"
