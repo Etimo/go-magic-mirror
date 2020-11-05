@@ -6,7 +6,10 @@ Anyone in need of an easy React/Redux and Golang/Gorilla setup can of course use
 nodemon is used to auto build the go-project defined under the "server" folder, the
 react client is built using webpack and served by webpack-dev-server.
 
-## Initial setup
+## With docker locally
+`docker-compose up`
+
+## Without docker Initial setup
 
 - Install go
 - Get the project using `go get github.com/etimo/go-magic-mirror`
