@@ -9,6 +9,7 @@ import (
 	"github.com/etimo/go-magic-mirror/server/modules"
 	"github.com/etimo/go-magic-mirror/server/modules/clock"
 	"github.com/etimo/go-magic-mirror/server/modules/googlecal"
+	"github.com/etimo/go-magic-mirror/server/modules/photomod"
 	"github.com/etimo/go-magic-mirror/server/modules/systeminfo"
 )
 
@@ -38,7 +39,7 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbac
 	var mods = make([]modules.Module, 0)
 	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
-	mods = append(mods, photo.NewPhotoModule(writeChannel, "photo", "url", 1000*time.Millisecond))
+	mods = append(mods, photomod.NewPhotoModule(writeChannel, "photo", "url", 1000*time.Millisecond))
 	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
 
 	moduleCreator := map[string]moduleCreator{
