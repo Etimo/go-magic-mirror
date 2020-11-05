@@ -39,11 +39,8 @@ type moduleCreator interface {
 //to the right channels for sending and receiving messsages.
 func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbackChannel chan bool) ModuleContext {
 	var mods = make([]modules.Module, 0)
-	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo", 200*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
 	mods = append(mods, photomod.NewPhotoModule(writeChannel, "photo", "url", 1000*time.Millisecond))
-	//	mods = append(mods, systeminfo.NewSysInfoModule(writeChannel, "systeminfo2", 500*time.Millisecond))
-
 	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1000*15*time.Millisecond))
 
 	moduleCreator := map[string]moduleCreator{

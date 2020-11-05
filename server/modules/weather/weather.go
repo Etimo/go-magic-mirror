@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"go-magic-mirror/server/models"
-	"go-magic-mirror/server/modules"
+	"github.com/etimo/go-magic-mirror/server/models"
+	"github.com/etimo/go-magic-mirror/server/modules"
 )
 
 type CreateMessage struct {
