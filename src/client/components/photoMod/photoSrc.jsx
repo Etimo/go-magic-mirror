@@ -1,15 +1,19 @@
 import React from "react";
 
-const PhotoSrc = ({ url }) => {
+const PhotoSrc = ({ message }) => {
   const component =
-    url == null ? (
+    message == null ? (
       <div className="url">
         <h1>No url</h1>
       </div>
     ) : (
       <div className="url">
-        <img src={url}></img>
-        <h1>{url}</h1>
+        <img
+          src={message.Url}
+          height={message.height}
+          width={message.Width}
+        ></img>
+        <h1>{/*message.Url*/}</h1>
       </div>
     );
   return component;
