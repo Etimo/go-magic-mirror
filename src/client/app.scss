@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url("../../public/Roboto-Regular.ttf");
+}
+
 .progressDiv{
   width:100%;
   display: flex;
@@ -19,4 +24,5 @@ body {
   background-color:black;
   color: white;
   text-align:left;
+  font-family: 'Roboto';
 }
