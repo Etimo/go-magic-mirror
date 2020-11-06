@@ -10,7 +10,7 @@ const PhotoSrc = ({ message }) => {
       <div className="url">
         <img
           src={message.Url}
-          height={message.height}
+          height={message.Height}
           width={message.Width}
         ></img>
         <h1>{/*message.Url*/}</h1>
