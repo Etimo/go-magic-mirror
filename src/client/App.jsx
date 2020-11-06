@@ -54,15 +54,17 @@ export default class App extends Component {
 
   render() {
     return (
-      <div style={containerStyles}>
+      <div>
         <ComponentSocket
           url="ws://localhost:8080/ws"
           onmessage={this.onmessage}
           writeMessages={this.state.creationMessages} />
-        {Object.keys(this.state).map(id => {
-          const component = components[this.state[id].type];
-          return component ? React.createElement(component, {message: this.state[id]}) : ""
-        })}
+        <div style={containerStyles}>
+          {Object.keys(this.state).map(id => {
+            const component = components[this.state[id].type];
+            return component ? React.createElement(component, { message: this.state[id], key: this.state[id]}) : ""
+          })}
+        </div>
       </div>
     );
   }
