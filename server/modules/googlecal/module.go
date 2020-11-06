@@ -52,6 +52,7 @@ type UpdateMessage struct {
 //Message represents the Json structure sent to the frontend. It contains information on the plugin Id and calendar events.
 type Message struct {
 	Id      string          `json:"Id"`
+	Type    string          `json:"type"`
 	Updates []UpdateMessage `json:"calendars"`
 }
 
@@ -120,6 +121,7 @@ func (gc *GoogleCalendarModule) getEvents(initialLoad bool) {
 		Message{
 			Id:      gc.Id,
 			Updates: events,
+			Type:    "GoogleCalendar",
 		},
 	)
 	gc.Channel <- bytes

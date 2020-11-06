@@ -33,6 +33,7 @@ type SysMessage struct {
 	MemoryUsed        string           `json:"usedMemory"`
 	Cpus              map[string][]Cpu `json:"cpus"`
 	Uptime            uint64           `json:"uptime"`
+	Type              string           `json:"type"`
 }
 type CreateMessage struct {
 	Id    string `json:"Id"`
@@ -81,6 +82,7 @@ func getConstantInfo() SysMessage {
 		}
 		cpusCores = cpus
 	}
+	message.Type = "SystemInfo"
 	return message
 }
 

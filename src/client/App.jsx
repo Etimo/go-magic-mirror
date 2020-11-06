@@ -1,18 +1,29 @@
-import React from "react";
-import { Component } from "react";
-import "./app.scss";
-import ComponentSocket from "./components/component-socket.jsx";
-import SystemInfo from "./components/systeminfo/systeminfo.jsx";
-import Clock from "./components/clock/clock";
-import Text from "./components/text/Text";
-import GoogleCalendar from "./components/googlecalendar/calendarbase.jsx";
-import Photo from "./components/photoMod/photo.jsx";
+
+import React from 'react'
+import { Component } from 'react';
+import './app.scss';
+import ComponentSocket from './components/component-socket.jsx'
+import SystemInfo from './components/systeminfo/systeminfo.jsx'
+import Clock from './components/clock/clock';
+import Text from './components/text/Text';
+import GoogleCalendar from './components/googlecalendar/calendarbase.jsx';
+import List from './components/List/List';
+import Photo from './components/photoMod/photo'
 
 const containerStyles = {
   display: "grid",
   gridGap: "50px",
   gridTemplateColumns: "auto auto auto auto"
 };
+
+const components = {
+  "Text": Text,
+  "List": List,
+  "SystemInfo": SystemInfo,
+  "Clock": Clock,
+  "GoogleCalendar": GoogleCalendar,
+  "Photo": Photo,
+}
 
 export default class App extends Component {
   constructor(props) {
@@ -47,16 +58,11 @@ export default class App extends Component {
         <ComponentSocket
           url="ws://localhost:8080/ws"
           onmessage={this.onmessage}
-          writeMessages={this.state.creationMessages}
-        />
-        <Clock id="clock" message={this.state.clock} />
-        <Photo id="photo" message={this.state.photo} />
-        <Text message={this.state.weather} />
-        <GoogleCalendar
-          id="meetinCalendar"
-          message={this.state.meetingCalendar}
-        />
-        <SystemInfo id="systeminfo" message={this.state.systeminfo} />
+          writeMessages={this.state.creationMessages} />
+        {Object.keys(this.state).map(id => {
+          const component = components[this.state[id].type];
+          return component ? React.createElement(component, {message: this.state[id]}) : ""
+        })}
       </div>
     );
   }
