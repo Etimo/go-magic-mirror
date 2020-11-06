@@ -34,8 +34,8 @@ type Parameter struct {
 }
 
 var weatherTypes = map[uint8]string{
-	1:  "ClearSky",
-	2:  "NearlyClearSky",
+	1:  "wi wi-darksky-clear-day",
+	2:  "wi wi-wu-mostlysunny",
 	3:  "VariableCloudiness",
 	4:  "HalfclearSky",
 	5:  "CloudySky",

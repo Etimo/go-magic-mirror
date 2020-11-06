@@ -1,4 +1,5 @@
 import React from 'react'
+const isImage = (icon) => !!icon && (icon.endsWith('.jpg') || icon.endsWith('.svg') || icon.endsWith('.png')); 
 export default ({ message, id }) => (
     message ?
         <div style={{
@@ -6,6 +7,6 @@ export default ({ message, id }) => (
             gridRow: `span ${message.height}`,
             fontSize: "400%"
         }} className="text" name={id}>
-            {message.icon ? <span>{message.icon}</span> : ""}
+            {isImage(message.icon) ? <img src={message.icon}/> : message.icon ? <span class={message.icon}></span> : ""}
             {message.value}
         </div> : "")
