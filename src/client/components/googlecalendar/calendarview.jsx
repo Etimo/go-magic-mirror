@@ -9,7 +9,7 @@ const Calendar = ({ events, name }) =>
       </div>
     </div>
   ) :
-    <div className="calendar">
+    <div className="widget fadeIn calendar">
       <div className="calendarHeader">
         <h1>{name}</h1>
       </div>

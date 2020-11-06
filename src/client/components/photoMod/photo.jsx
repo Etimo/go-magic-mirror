@@ -9,7 +9,7 @@ const Photo = ({ message, id }) => {
         <h1>no photo</h1>
       </div>
     ) : (
-      <div className="photo" name={id}>
+      <div className="widget fadeIn" name={id}>
         <PhotoSrc message={message} />
       </div>
     );
