@@ -39,7 +39,7 @@ type moduleCreator interface {
 //to the right channels for sending and receiving messsages.
 func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbackChannel chan bool) ModuleContext {
 	var mods = make([]modules.Module, 0)
-	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimoLog.png", "200", "300", 1000*time.Millisecond))
+	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimoLog.png", "100", "300", 1000*time.Millisecond))
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 1000*time.Millisecond))
 	mods = append(mods, photomod.NewPhotoModule(writeChannel, "photo", "https://homepages.cae.wisc.edu/~ece533/images/arctichare.png", "300", "300", 1000*time.Millisecond))
 	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1000*15*time.Millisecond))
