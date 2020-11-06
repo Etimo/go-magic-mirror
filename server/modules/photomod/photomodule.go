@@ -15,16 +15,18 @@ type PhotoModule struct {
 }
 
 type PhotoMessage struct {
-	Id  string `json:"Id"`
-	Url string `json:"Url"`
+	Id   string `json:"Id"`
+	Type string `json:"type"`
+	Url  string `json:"Url"`
 }
 
 // structure function  PhotoModule.Update();
 func (c PhotoModule) Update() {
 
 	c.writer.Encode(PhotoMessage{
-		Id:  c.Id,
-		Url: c.Url,
+		Id:   c.Id,
+		Type: "Photo",
+		Url:  c.Url,
 	})
 }
 

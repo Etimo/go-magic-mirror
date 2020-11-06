@@ -11,6 +11,7 @@ import (
 
 type ClockMessage struct {
 	Id   string    `json:"Id"`
+	Type string    `json:"type"`
 	Date ClockDate `json:"date"`
 	Time ClockTime `json:"time"`
 }
@@ -56,6 +57,7 @@ func (c ClockModule) Update() {
 	message.Date.Day = timeNow.Day()
 	message.Date.Month = timeNow.Month().String()
 	message.Date.Year = timeNow.Year()
+	message.Type = "Clock"
 	c.writer.Encode(message)
 }
 
