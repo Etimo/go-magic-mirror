@@ -1,14 +1,13 @@
-
-import React from 'react'
-import { Component } from 'react';
-import './app.scss';
-import ComponentSocket from './components/component-socket.jsx'
-import SystemInfo from './components/systeminfo/systeminfo.jsx'
-import Clock from './components/clock/clock';
-import Text from './components/text/Text';
-import GoogleCalendar from './components/googlecalendar/calendarbase.jsx';
-import List from './components/List/List';
-import Photo from './components/photoMod/photo'
+import React from "react";
+import { Component } from "react";
+import "./app.scss";
+import ComponentSocket from "./components/component-socket.jsx";
+import SystemInfo from "./components/systeminfo/systeminfo.jsx";
+import Clock from "./components/clock/clock";
+import Text from "./components/text/Text";
+import GoogleCalendar from "./components/googlecalendar/calendarbase.jsx";
+import List from "./components/List/List";
+import Photo from "./components/photoMod/photo";
 
 const containerStyles = {
   display: "grid",
@@ -17,13 +16,13 @@ const containerStyles = {
 };
 
 const components = {
-  "Text": Text,
-  "List": List,
-  "SystemInfo": SystemInfo,
-  "Clock": Clock,
-  "GoogleCalendar": GoogleCalendar,
-  "Photo": Photo,
-}
+  Text: Text,
+  List: List,
+  SystemInfo: SystemInfo,
+  Clock: Clock,
+  GoogleCalendar: GoogleCalendar,
+  Photo: Photo
+};
 
 export default class App extends Component {
   constructor(props) {
@@ -58,12 +57,28 @@ export default class App extends Component {
         <ComponentSocket
           url="ws://localhost:8080/ws"
           onmessage={this.onmessage}
-          writeMessages={this.state.creationMessages} />
+          writeMessages={this.state.creationMessages}
+        />
         <div style={containerStyles}>
-          {Object.keys(this.state).map(id => {
-            const component = components[this.state[id].type];
-            return component ? React.createElement(component, { message: this.state[id], key: id}) : ""
-          })}
+          {Object.keys(this.state)
+            .map(id => {
+              const component = components[this.state[id].type];
+              return component
+                ? React.createElement(component, {
+                    message: this.state[id],
+                    key: id
+                  })
+                : "";
+            })
+            .sort((a, b) =>
+              a.type > b.type
+                ? -1
+                : a.type == b.type
+                ? a.key > b.key
+                  ? 1
+                  : -1
+                : 1
+            )}
         </div>
       </div>
     );
