@@ -112,6 +112,10 @@ func (gc *GoogleCalendarModule) getEvents(initialLoad bool) {
 		oneMoreWeek.Format(time.RFC3339),
 		99,
 		initialLoad)
+	if events == nil {
+		return
+	}
+
 	bytes, _ := json.Marshal(
 		Message{
 			Id:      gc.Id,
@@ -128,8 +132,10 @@ func (gc GoogleCalendarModule) Update() {
 
 //TimedUpdate triggers an update and a sleep to allow for delayed periodic updates.
 func (gc GoogleCalendarModule) TimedUpdate() {
-	gc.getEvents(false)
-	time.Sleep(time.Second * 5)
+	for {
+		gc.getEvents(true)
+		time.Sleep(time.Second * 15)
+	}
 }
 
 //GetId returns the ID of the module.

@@ -6,7 +6,7 @@ const GoogleCalendar = ({message,id}) => {
   return <div key={id} className="calendarContainer">
     {
       (message ==null ? [] : message.calendars).map(c =>
-      <Calendar name={c.calendarName} events={c.currentEvents}/>)
+      <Calendar key={c.calendarName} name={c.calendarName} events={c.currentEvents}/>)
     }
   </div>
 }

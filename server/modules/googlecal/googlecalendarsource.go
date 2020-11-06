@@ -2,6 +2,7 @@ package googlecal
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -42,6 +43,7 @@ func (gc googleCalendarSource) CheckUpdated(calendarId string) bool {
 //GetEvents queries google calendar for a specific number of events situated within the enclosing period.
 func (gc googleCalendarSource) GetEvents(
 	startDateTime string, stopDateTime string, numberOfEvents int, initialLoad bool) []UpdateMessage {
+	fmt.Println("Time: ", startDateTime, stopDateTime)
 	returnMessages := make([]UpdateMessage, len(gc.googleCalendarIds))
 
 	for i, calendarId := range gc.googleCalendarIds {
@@ -60,22 +62,26 @@ func (gc googleCalendarSource) GetEvents(
 	}
 	return returnMessages
 }
-func (gc googleCalendarSource) getEventMessages(startDateTime, stopDateTime, calendarName, calendarId string) []EventMessage {
-	list, err := gc.client.Events.List(calendarId).
+
+func (gc googleCalendarSource) getEventMessages(startDateTime, stopDateTime, calendarName, calendarID string) []EventMessage {
+	fmt.Println("EventTime: ", startDateTime, stopDateTime)
+	list, err := gc.client.Events.List(calendarID).
 		TimeMin(startDateTime).
 		TimeMax(stopDateTime).
 		Do()
 	if err != nil {
-		log.Println("Problem with calendar: ", calendarId, " : ", calendarName)
+		log.Println("Problem with calendar: ", calendarID, " : ", calendarName)
 	}
+	fmt.Println("Found: ", len(list.Items))
 	eventMessages := make([]EventMessage, len(list.Items))
 	for i, event := range list.Items {
 		eventMessages[i] = createEventMessage(event)
 		time.Now()
 	}
-	gc.syncTokens[calendarId] = &list.NextSyncToken
+	gc.syncTokens[calendarID] = &list.NextSyncToken
 	return eventMessages
 }
+
 func createEventMessage(event *calendar.Event) EventMessage {
 	return EventMessage{
 		Summary:     event.Summary,
