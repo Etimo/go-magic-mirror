@@ -105,7 +105,7 @@ func NewGoogleCalendarModule(
  */
 func (gc *GoogleCalendarModule) getEvents(initialLoad bool) {
 	now := time.Now()
-	startOfDay := time.Date(now.Year(), now.Month(), now.Day()-100, 0, 0, 0, 0, time.Local)
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day()-2, 0, 0, 0, 0, time.Local)
 	oneMoreWeek := startOfDay.Add(time.Hour * 24 * 100)
 	events := gc.EventSource.GetEvents(
 		startOfDay.Format(time.RFC3339),
