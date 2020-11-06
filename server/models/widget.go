@@ -6,10 +6,14 @@ type Widget struct {
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 }
-type TextWidget struct {
-	Widget
+
+type TextIcon struct {
 	Value string `json:"value"`
 	Icon  string `json:"icon"`
+}
+type TextWidget struct {
+	Widget
+	TextIcon
 }
 
 func (widget *TextWidget) Init(id string, width int, height int, value string) {
@@ -22,11 +26,10 @@ func (widget *TextWidget) Init(id string, width int, height int, value string) {
 
 type ListWidget struct {
 	Widget
-	Values   []string `json:"values"`
-	ListIcon string   `json:"listIcon"`
+	Values []TextIcon `json:"values"`
 }
 
-func (widget *ListWidget) Init(id string, width int, height int, values []string) {
+func (widget *ListWidget) Init(id string, width int, height int, values []TextIcon) {
 	widget.Type = "List"
 	widget.Id = id
 	widget.Width = width

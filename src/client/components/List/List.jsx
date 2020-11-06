@@ -5,7 +5,5 @@ export default({ message, id }) => (
             gridColumn: `span ${message.width}`,
             gridRow: `span ${message.height}`,
         }} className="text" name={id}>
-            <ul>
-                { message.values.map(v => (<li>{v}</li>)) }
-            </ul>
+            {message.values.map(v => (<div><span>{v.icon}</span> {v.value}</div>)) }
         </div> : "")
