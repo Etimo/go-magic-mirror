@@ -61,7 +61,7 @@ export default class App extends Component {
           writeMessages={this.state.creationMessages} />
         {Object.keys(this.state).map(id => {
           const component = components[this.state[id].type];
-          return component ? React.createElement(component, {message: this.state[id]}) : ""
+          return component ? React.createElement(component, { message: this.state[id], id: this.state[id].id, key: this.state[id].id}) : ""
         })}
       </div>
     );
