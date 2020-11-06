@@ -84,7 +84,7 @@ func (c WeatherModule) Update() {
 	var temperature = strconv.FormatFloat(weather.TimeSeries[0].Parameters[1].Values[0], 'f', -1, 64) + " " + string(weather.TimeSeries[0].Parameters[1].Unit)
 	var weatherType = weatherTypes[uint8(weather.TimeSeries[0].Parameters[18].Values[0])]
 	var message models.TextWidget
-	message.Init(c.GetId(), 2, 1, temperature)
+	message.Init(c.GetId(), 1, 1, temperature)
 	message.Icon = weatherType
 	c.writer.Encode(message)
 }
