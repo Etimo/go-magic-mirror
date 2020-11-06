@@ -12,7 +12,8 @@ const Clock = ({message,id}) => {
     </div>
     :
     <div className="widget fadeIn clock" name={id}>
-        <ClockDate message={message.date}/>
+            <ClockDate message={message.date} />
+            <br/>
         <ClockTime message={message.time}/>
     </div>
     return (
