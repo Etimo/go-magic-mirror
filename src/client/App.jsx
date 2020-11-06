@@ -62,7 +62,7 @@ export default class App extends Component {
         <div style={containerStyles}>
           {Object.keys(this.state).map(id => {
             const component = components[this.state[id].type];
-            return component ? React.createElement(component, { message: this.state[id], key: this.state[id]}) : ""
+            return component ? React.createElement(component, { message: this.state[id], key: id}) : ""
           })}
         </div>
       </div>
