@@ -7,6 +7,6 @@ export default ({ message, id }) => (
             gridRow: `span ${message.height}`,
             fontSize: "400%"
         }} className="text" name={id}>
-            {isImage(message.icon) ? <img src={message.icon}/> : message.icon ? <span class={message.icon}></span> : ""}
+            {isImage(message.icon) ? <img src={message.icon}/> : message.icon ? <span className={message.icon}></span> : ""}
             {message.value}
         </div> : "")
