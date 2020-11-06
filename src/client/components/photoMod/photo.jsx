@@ -10,7 +10,7 @@ const Photo = ({ message, id }) => {
       </div>
     ) : (
       <div className="photo" name={id}>
-        <PhotoSrc url={message.Url} />
+        <PhotoSrc message={message} />
       </div>
     );
   return component;
