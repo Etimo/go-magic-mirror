@@ -1,3 +1,10 @@
+@import './weather-icons.scss';
+@font-face {
+  font-family: 'Roboto';
+  src: 
+  url("../../public/Roboto-Regular.ttf");
+}
+
 .progressDiv{
   width:100%;
   display: flex;
@@ -14,9 +21,35 @@
 }
 
 body {
+  margin-top: 50px;
   text-align: center;
   margin: auto;
   background-color:black;
   color: white;
   text-align:left;
+  font-family: 'Roboto';
+}
+
+@-webkit-keyframes fadeIn {
+            0% {opacity: 0;}
+            100% {opacity: 1;}
+}
+         
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+         
+.fadeIn {
+   -webkit-animation-name: fadeIn;
+   animation-name: fadeIn;
+  -webkit-animation-duration: 5s;
+  animation-duration: 5s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.widget {
+  display: flex;
+  justify-content: center;
 }

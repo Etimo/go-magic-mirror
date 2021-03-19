@@ -1,23 +1,32 @@
-
-import React from 'react'
-import { Component } from 'react';
-import './app.scss';
-import ComponentSocket from './components/component-socket.jsx'
-import SystemInfo from './components/systeminfo/systeminfo.jsx'
-import Clock from './components/clock/clock';
-import Text from './components/text/Text';
-import GoogleCalendar from './components/googlecalendar/calendarbase.jsx';
+import React from "react";
+import { Component } from "react";
+import "./app.scss";
+import ComponentSocket from "./components/component-socket.jsx";
+import SystemInfo from "./components/systeminfo/systeminfo.jsx";
+import Clock from "./components/clock/clock";
+import Text from "./components/text/Text";
+import GoogleCalendar from "./components/googlecalendar/calendarbase.jsx";
+import List from "./components/List/List";
+import Photo from "./components/photoMod/photo";
 
 const containerStyles = {
   display: "grid",
   gridGap: "50px",
   gridTemplateColumns: "auto auto auto auto"
-}
+};
+
+const components = {
+  Text: Text,
+  List: List,
+  SystemInfo: SystemInfo,
+  Clock: Clock,
+  GoogleCalendar: GoogleCalendar,
+  Photo: Photo
+};
 
 export default class App extends Component {
-
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       creationMessages: [
         /*{
@@ -34,24 +43,43 @@ export default class App extends Component {
     };
   }
 
-  onmessage = (event) => {
+  onmessage = event => {
     console.log("message here:", event.data);
     const data = JSON.parse(event.data);
-    var stateUpdate = {}
+    var stateUpdate = {};
     stateUpdate[data.Id] = data;
     this.setState(stateUpdate);
   };
 
   render() {
     return (
-      <div style={containerStyles}>
-        <ComponentSocket url="ws://localhost:8080/ws"
+      <div>
+        <ComponentSocket
+          url="ws://localhost:8080/ws"
           onmessage={this.onmessage}
-          writeMessages={this.state.creationMessages} />
-        <Clock id="clock" message={this.state.clock} />
-        <Text message={this.state.weather} />
-        <GoogleCalendar id="meetinCalendar" message={this.state.meetingCalendar} />
-        <SystemInfo id="systeminfo" message={this.state.systeminfo} />
+          writeMessages={this.state.creationMessages}
+        />
+        <div style={containerStyles}>
+          {Object.keys(this.state)
+            .map(id => {
+              const component = components[this.state[id].type];
+              return component
+                ? React.createElement(component, {
+                    message: this.state[id],
+                    key: id
+                  })
+                : "";
+            })
+            .sort((a, b) =>
+              a.type > b.type
+                ? -1
+                : a.type == b.type
+                ? a.key > b.key
+                  ? 1
+                  : -1
+                : 1
+            )}
+        </div>
       </div>
     );
   }

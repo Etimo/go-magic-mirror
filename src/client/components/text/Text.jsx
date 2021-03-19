@@ -1,10 +1,12 @@
 import React from 'react'
+const isImage = (icon) => !!icon && (icon.endsWith('.jpg') || icon.endsWith('.svg') || icon.endsWith('.png')); 
 export default ({ message, id }) => (
     message ?
-        <div style={{
+        <div className="widget fadeIn text" style={{
             gridColumn: `span ${message.width}`,
             gridRow: `span ${message.height}`,
-        }} className="text" name={id}>
-            {message.icon ? <span>{message.icon}</span> : ""}
+            fontSize: "400%"
+        }} name={id}>
+            {isImage(message.icon) ? <img src={message.icon}/> : message.icon ? <span className={message.icon}></span> : ""}
             {message.value}
         </div> : "")

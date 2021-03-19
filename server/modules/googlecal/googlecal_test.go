@@ -38,7 +38,6 @@ func TestSimpleSource(t *testing.T) {
 
 //This test demands active google-calendar credentials, and connectivity
 //so is commented out. Leaving this in to allow easy testing of credential setup.
-/*
 func TestActualUpdate(t *testing.T) {
 	writeChannel := make(chan []byte, 100)
 	module, error := NewGoogleCalendarModule(
@@ -59,4 +58,3 @@ func TestActualUpdate(t *testing.T) {
 	}
 	log.Println("Events: ", message)
 }
-*/

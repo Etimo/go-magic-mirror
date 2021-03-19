@@ -17,7 +17,7 @@ const SystemInfo = ({message,id}) => {
       <h1> Awaiting first update</h1>
     </div> :
 
-     <div className="systeminfo" name={id}>
+     <div className="widget systeminfo fadeIn" name={id}>
     <div className="osinfo">
       <p>{message.hostName+" running "+message.os }</p>
       <p>Uptime: {message.uptime} seconds</p>
