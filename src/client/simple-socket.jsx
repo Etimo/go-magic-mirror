@@ -21,6 +21,9 @@ class SimpleSocket extends React.Component{
         this.setState({
             socket:socket
         });
+        socket.onclose = function() {
+            console.log("socket closed")
+        }
     }
     render(){
         return <span className="SocketSpan"></span>

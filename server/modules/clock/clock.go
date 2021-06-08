@@ -12,6 +12,10 @@ import (
 type ClockMessage struct {
 	Id   string    `json:"Id"`
 	Type string    `json:"type"`
+	X int `json:"x"`
+	Y int `json:"y"`
+	Width int `json:"width"`
+	Height int `json:"height"`
 	Date ClockDate `json:"date"`
 	Time ClockTime `json:"time"`
 }
@@ -32,15 +36,27 @@ type CreateMessage struct {
 type ClockModule struct {
 	writer *json.Encoder
 	Id     string
+	X int
+	Y int
+	Width int
+	Height int
 	delay  time.Duration
 }
 
 func NewClockModule(channel chan []byte,
 	Id string,
+	X int,
+	Y int,
+	Width int,
+	Height int,
 	delayInfoPush time.Duration) ClockModule {
 	return ClockModule{
 		writer: json.NewEncoder(models.ChannelWriter{Channel: channel}),
 		Id:     Id,
+		X: X,
+		Y: Y,
+		Width: Width,
+		Height: Height,
 		delay:  delayInfoPush,
 	}
 }
@@ -57,6 +73,10 @@ func (c ClockModule) Update() {
 	message.Date.Day = timeNow.Day()
 	message.Date.Month = timeNow.Month().String()
 	message.Date.Year = timeNow.Year()
+	message.X = c.X
+	message.Y = c.Y
+	message.Width = c.Width
+	message.Height = c.Height
 	message.Type = "Clock"
 	c.writer.Encode(message)
 }
@@ -85,5 +105,5 @@ func (c ClockModule) CreateFromMessage(message []byte, channel chan []byte) (mod
 	if err != nil {
 		return nil, err
 	}
-	return NewClockModule(channel, targetMessage.Id, time.Duration(targetMessage.Delay)*time.Millisecond), nil
+	return NewClockModule(channel, targetMessage.Id, 1,1,1,1, time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }

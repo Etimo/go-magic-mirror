@@ -1,23 +1,13 @@
-import React from 'react'
-import ClockDate from './clockDate.jsx'
-import ClockTime from './clockTime.jsx'
+import React, { Fragment } from "react";
+import ClockDate from "./clockDate.jsx";
+import ClockTime from "./clockTime.jsx";
 
-const Clock = ({message,id}) => {
-    const component = message == null ?
-    <div className="clock" name={id}>
-        <h1>
-        <ClockDate message={null}/>
-        <ClockTime message={null}/>
-        </h1>
-    </div>
-    :
-    <div className="widget fadeIn clock" name={id}>
-            <ClockDate message={message.date} />
-            <br/>
-        <ClockTime message={message.time}/>
-    </div>
-    return (
-        component
-    )
-}
-export default Clock
+export default ({ data }) => {
+  return (
+    <Fragment>
+      <ClockDate data={data.date} />
+      <br />
+      <ClockTime data={data.time} />
+    </Fragment>
+  );
+};

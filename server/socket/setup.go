@@ -57,11 +57,19 @@ func (s *ServerSocket) BindWebSocket(w http.ResponseWriter, r *http.Request) {
 	s.currentWs = connection
 	defer s.ReadIncoming(connection)
 
-	json, _ := json.Marshal(models.WelcomeMessage{Message: "Connected socket.."})
+	data, _ := json.Marshal(models.LayoutMessage{Rows: 4, Cols: 6})
 	log.Println("Write to WS connection")
-	s.WriteChannel <- json
+	s.WriteChannel <- data
 	s.callbackTrigger()
 	log.Println("Connected new websocket")
+
+	// defer func() {
+	// 	time.Sleep(10 * time.Second)
+	// 	data, _ := json.Marshal(models.LayoutMessage{Rows: 2, Cols: 2})
+	// 	log.Println("Write to WS connection")
+	// 	s.WriteChannel <- data
+	// 	s.callbackTrigger()
+	// }()
 }
 func (s *ServerSocket) callbackTrigger() {
 	if s.CallbackChannel != nil {

@@ -14,8 +14,10 @@ type PhotoModule struct {
 	writer *json.Encoder
 	Id     string
 	Url    string
-	Height string
-	Width  string
+	X      int
+	Y      int
+	Height int
+	Width  int
 	delay  time.Duration
 }
 
@@ -23,8 +25,10 @@ type PhotoMessage struct {
 	Id     string `json:"Id"`
 	Type   string `json:"type"`
 	Url    string `json:"Url"`
-	Height string `json:"Height"`
-	Width  string `json:"Width"`
+	X      int    `json:"x"`
+	Y      int    `json:"y"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
 }
 
 func (c PhotoModule) GetRandomPhoto() string {
@@ -46,6 +50,8 @@ func (c PhotoModule) Update() {
 			Id:     c.Id,
 			Type:   "Photo",
 			Url:    c.Url,
+			X:      c.X,
+			Y:      c.Y,
 			Height: c.Height,
 			Width:  c.Width,
 		}
@@ -55,6 +61,8 @@ func (c PhotoModule) Update() {
 			Id:     c.Id,
 			Type:   "Photo",
 			Url:    c.GetRandomPhoto(),
+			X: c.X,
+			Y: c.Y,
 			Height: c.Height,
 			Width:  c.Width,
 		}
@@ -66,15 +74,19 @@ func (c PhotoModule) Update() {
 func NewPhotoModule(channel chan []byte,
 	Id string,
 	Url string,
-	Height string,
-	width string,
+	X int,
+	Y int,
+	Width int,
+	Height int,
 	delayInfoPush time.Duration) PhotoModule {
 	return PhotoModule{
 		writer: json.NewEncoder(models.ChannelWriter{Channel: channel}),
 		Id:     Id,
 		Url:    Url,
+		X: X,
+		Y: Y,
 		Height: Height,
-		Width:  width,
+		Width:  Width,
 		delay:  delayInfoPush,
 	}
 }

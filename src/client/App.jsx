@@ -1,86 +1,65 @@
-import React from "react";
-import { Component } from "react";
+import React, { useState, useEffect } from "react";
 import "./app.scss";
-import ComponentSocket from "./components/component-socket.jsx";
-import SystemInfo from "./components/systeminfo/systeminfo.jsx";
-import Clock from "./components/clock/clock";
-import Text from "./components/text/Text";
-import GoogleCalendar from "./components/googlecalendar/calendarbase.jsx";
-import List from "./components/List/List";
-import Photo from "./components/photoMod/photo";
+import Widget from './components/widget'
 
-const containerStyles = {
-  display: "grid",
-  gridGap: "50px",
-  gridTemplateColumns: "auto auto auto auto"
-};
 
-const components = {
-  Text: Text,
-  List: List,
-  SystemInfo: SystemInfo,
-  Clock: Clock,
-  GoogleCalendar: GoogleCalendar,
-  Photo: Photo
-};
+export default () => {
+  const [creationMessages, setCreationMessages] = useState([
+    {
+      name: "googlecalendar",
+      id: "meetingCalendar",
+      calendars: ["Etvrimo Event-bokning"],
+    },
+  ]);
+  const [widgets, setWidgets] = useState({});
+  const [layout, setLayout] = useState({ cols: 1, rows: 1 });
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      creationMessages: [
-        /*{
-         name:"systeminfo",
-         id:"systeminfo",
-         delay:500
-       },*/
-        {
-          name: "googlecalendar",
-          id: "meetingCalendar",
-          calendars: ["Etvrimo Event-bokning"]
+  useEffect(() => {
+    console.log("Setting up websocket")
+    const socket = new WebSocket("ws://localhost:8080/ws");
+    socket.onopen = () => {
+      // this.sendMessages(socket);
+    }
+    socket.onmessage = (event) => {
+      // console.log("message here:", event.data);
+      try {
+        const data = JSON.parse(event.data);
+  
+        if ("Id" in data) {
+          setWidgets((widgets) => {
+            return { ...widgets, [data.Id]: data }
+          });
+        } else if ("cols" in data) {
+          // Layout message
+          console.log("Layout message");
+          setLayout(data);
         }
-      ]
+      } catch (e) {
+        console.error("Unable to parse json");
+      }
+  
     };
-  }
+  }, [])
 
-  onmessage = event => {
-    console.log("message here:", event.data);
-    const data = JSON.parse(event.data);
-    var stateUpdate = {};
-    stateUpdate[data.Id] = data;
-    this.setState(stateUpdate);
-  };
-
-  render() {
-    return (
-      <div>
-        <ComponentSocket
-          url="ws://localhost:8080/ws"
-          onmessage={this.onmessage}
-          writeMessages={this.state.creationMessages}
-        />
-        <div style={containerStyles}>
-          {Object.keys(this.state)
-            .map(id => {
-              const component = components[this.state[id].type];
-              return component
-                ? React.createElement(component, {
-                    message: this.state[id],
-                    key: id
-                  })
-                : "";
-            })
-            .sort((a, b) =>
-              a.type > b.type
-                ? -1
-                : a.type == b.type
-                ? a.key > b.key
-                  ? 1
-                  : -1
-                : 1
-            )}
-        </div>
+  return (
+    <div>
+      <div className="grid"
+        style={{
+          display: "grid",
+          gridColumnGap: "5px",
+          gridRowGap: "5px",
+          width: "100vw",
+          height: "100vh",
+          gridTemplateColumns: `repeat(${layout.cols}, 1fr)`,
+          gridTemplateRows: `repeat(${layout.rows}, 1fr)`,
+        }}
+      >
+        {Object.keys(widgets).map((id) => {
+          return (
+            <Widget key={id} data={widgets[id]}></Widget>
+          )
+        })}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};

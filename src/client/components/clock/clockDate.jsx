@@ -1,7 +1,7 @@
 import React from 'react'
 
-const ClockDate = ({message}) => {
-    const component = message == null ?
+const ClockDate = ({data}) => {
+    const component = data == null ?
     <div className="date" >
         <h1>
             Dec 32
@@ -10,7 +10,7 @@ const ClockDate = ({message}) => {
     :
     <div className="date" >
         <h1>
-            {message.day} {message.month} - {message.year}
+            {data.day} {data.month} - {data.year}
         </h1>
     </div>
     return (
