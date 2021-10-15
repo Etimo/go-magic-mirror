@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -46,8 +47,13 @@ func StartServer(bindAddress string) {
 	router.HandleFunc("/panictest", func(w http.ResponseWriter, r *http.Request) {
 		panic("This is a triggered panic")
 	})
+	fmt.Println(handler)
+
+	// Where ORIGIN_ALLOWED is like `scheme://dns[:port]`, or `*` (insecure)
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 	s.setupModules()
-	log.Fatal(http.ListenAndServe(bindAddress, handler))
+	log.Fatal(http.ListenAndServe(bindAddress, handlers.CORS(originsOk, methodsOk)(router)))
 
 }
 

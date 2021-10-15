@@ -4,7 +4,7 @@
   "description": "Updated boilerplate for building a full stack react app.",
   "main": "src/server/index.js",
   "scripts": {
-    "build": "webpack --mode production && go build",
+    "build": "webpack --mode production && go build && cp -r public dist",
     "server": "nodemon --watch server -e \".go\" --exec \"./start-server.sh\"",
     "start": "yarpm run build && ./go-magic-mirror",
     "client": "webpack serve --mode development",

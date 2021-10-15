@@ -10,3 +10,4 @@ apt-get install --no-install-recommends chromium-browser
 echo "mv config files":
 mv /home/pi/autostart  /etc/xdg/openbox/
 mv /home/pi/environment /etc/xdg/openbox/
+reboot

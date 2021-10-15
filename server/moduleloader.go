@@ -25,7 +25,7 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbac
 	var layouts = make(map[string]Layout, 0)
 	var delay = time.Duration(1000)
 
-	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimoLog.png", delay*time.Millisecond))
+	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimo-logo-white.svg", delay*time.Millisecond))
 	layouts["logo"] = Layout{X: 1, Y: 1, Width: 3, Height: 1, PluginType: "Photo"}
 	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 4, 4, 2, 2, delay*time.Millisecond))
 	layouts["clock"] = Layout{X: 5, Y: 1, Width: 3, Height: 1, PluginType: "Clock"}
