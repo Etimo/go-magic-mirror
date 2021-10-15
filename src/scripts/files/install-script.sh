@@ -10,4 +10,6 @@ apt-get install --no-install-recommends chromium-browser
 echo "mv config files":
 mv /home/pi/autostart  /etc/xdg/openbox/
 mv /home/pi/environment /etc/xdg/openbox/
+mv /home/pi/go-magic-mirror.service /etc/systemd/system
+systemctl enable go-magic-mirror.service
 reboot
