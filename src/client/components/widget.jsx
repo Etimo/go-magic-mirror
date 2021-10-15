@@ -8,15 +8,15 @@ import Text from "./text/Text";
 
 const components = {
   Text: Text,
-//   List: List,
-//   SystemInfo: SystemInfo,
+  //   List: List,
+  SystemInfo: SystemInfo,
   Clock: Clock,
-//   GoogleCalendar: GoogleCalendar,
+  //   GoogleCalendar: GoogleCalendar,
   Photo: Photo,
 };
 
-export default ({ data }) => {
-  const component = components[data.type];
+export default ({ data, layout }) => {
+  const component = components["type" in data ? data.type : layout.pluginType];
   const el = component ? (
     React.createElement(component, {
       data,
@@ -28,12 +28,12 @@ export default ({ data }) => {
   return (
     <div
       style={{
-        gridColumn: `${data.x} / ${data.x + data.width}`,
-        gridRow: `${data.y} / ${data.y + data.height}`,
+        gridColumn: `${layout?.x} / ${layout?.x + layout?.width}`,
+        gridRow: `${layout?.y} / ${layout?.y + layout?.height}`,
       }}
-      className={`widget type-${data.type.toLowerCase()}`}
+      className={`widget type-${data?.type?.toLowerCase()}`}
     >
-        {el}
+      {el}
     </div>
   );
 };

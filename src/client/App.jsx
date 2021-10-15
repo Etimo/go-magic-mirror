@@ -12,7 +12,7 @@ export default () => {
     },
   ]);
   const [widgets, setWidgets] = useState({});
-  const [layout, setLayout] = useState({ cols: 1, rows: 1 });
+  const [layout, setLayout] = useState({});
 
   useEffect(() => {
     console.log("Setting up websocket")
@@ -21,23 +21,23 @@ export default () => {
       // this.sendMessages(socket);
     }
     socket.onmessage = (event) => {
-      // console.log("message here:", event.data);
+      console.log("message here:", event.data);
       try {
-        const data = JSON.parse(event.data);
-  
+        const data = JSON.parse(event.data)
+
         if ("Id" in data) {
           setWidgets((widgets) => {
             return { ...widgets, [data.Id]: data }
           });
-        } else if ("cols" in data) {
-          // Layout message
-          console.log("Layout message");
-          setLayout(data);
+        } else if ("pluginId" in data) {
+          setLayout((layout) => {
+            return { ...layout, [data.pluginId]: data }
+          });         // Layout message
         }
       } catch (e) {
-        console.error("Unable to parse json");
+        console.error("Exception in socket ", e);
       }
-  
+
     };
   }, [])
 
@@ -52,11 +52,13 @@ export default () => {
           height: "100vh",
           gridTemplateColumns: `repeat(${layout.cols}, 1fr)`,
           gridTemplateRows: `repeat(${layout.rows}, 1fr)`,
+          gridAutoRows: "100px",
+          gridAutoColumns: "100px"
         }}
       >
         {Object.keys(widgets).map((id) => {
           return (
-            <Widget key={id} data={widgets[id]}></Widget>
+            <Widget key={id} data={widgets[id]} layout={layout[id]}></Widget>
           )
         })}
       </div>

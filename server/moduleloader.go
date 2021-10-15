@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/etimo/go-magic-mirror/server/models"
 	"github.com/etimo/go-magic-mirror/server/modules/weather"
 
 	"github.com/etimo/go-magic-mirror/server/modules"
@@ -15,58 +16,40 @@ import (
 	"github.com/etimo/go-magic-mirror/server/modules/systeminfo"
 )
 
-//ModuleContext : struct that contains array of all server side modules,
-//and connects them with the correct channel for sending messages.
-type ModuleContext struct {
-	Modules         []modules.Module
-	Creators        map[string]moduleCreator
-	WriteChannel    chan []byte
-	ReadChannel     chan []byte
-	CallbackChannel chan bool
-}
-type CreateMessage struct {
-	Name string `json:"name"`
-	Id   string `json:"Id"`
-}
-
-type moduleCreator interface {
-	CreateFromMessage([]byte, chan []byte) (modules.Module, error)
-}
-
 //NewModuleContext creates a moduleContext with default set of modules,
 //and module creators.
 //The module context contains all modules initiated serverside and connects them
 //to the right channels for sending and receiving messsages.
 func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbackChannel chan bool) ModuleContext {
 	var mods = make([]modules.Module, 0)
+	var layouts = make(map[string]Layout, 0)
 	var delay = time.Duration(1000)
-	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimoLog.png", 1, 1, 2, 1, delay * time.Millisecond))
-	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 4,4,2,2,delay * time.Millisecond))
-	mods = append(mods, photomod.NewPhotoModule(writeChannel, "photo", "https://homepages.cae.wisc.edu/~ece533/images/arctichare.png", 3,1,2,1, 5 * delay * time.Millisecond))
-	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1,2,2,1,delay * 15*time.Millisecond))
+
+	mods = append(mods, photomod.NewPhotoModule(writeChannel, "logo", "./public/etimoLog.png", delay*time.Millisecond))
+	layouts["logo"] = Layout{X: 1, Y: 1, Width: 3, Height: 1, PluginType: "Photo"}
+	mods = append(mods, clock.NewClockModule(writeChannel, "clock", 4, 4, 2, 2, delay*time.Millisecond))
+	layouts["clock"] = Layout{X: 5, Y: 1, Width: 3, Height: 1, PluginType: "Clock"}
+	mods = append(mods, photomod.NewPhotoModule(writeChannel, "photo", "https://homepages.cae.wisc.edu/~ece533/images/arctichare.png", 5*delay*time.Millisecond))
+	layouts["photo"] = Layout{X: 1, Y: 3, Width: 2, Height: 2, PluginType: "Photo"}
+	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1, 2, 2, 1, delay*15*time.Millisecond))
+	layouts["weather"] = Layout{X: 4, Y: 3, Width: 1, Height: 1}
+	writer := json.NewEncoder(models.ChannelWriter{Channel: writeChannel})
 
 	moduleCreator := map[string]moduleCreator{
 		"systeminfo":     systeminfo.SysinfoModule{},
 		"googlecalendar": googlecal.GoogleCalendarModule{},
 	}
+
 	return ModuleContext{
 		Modules:         mods,
 		Creators:        moduleCreator,
 		WriteChannel:    writeChannel,
 		ReadChannel:     readChannel,
 		CallbackChannel: callbackChannel,
+		Layouts:         layouts,
+		MessageWriter:   writer,
 	}
 
-}
-
-//SetupTimedUpdates starts the timedUpdate flow for all modules in the module list
-//Should only be called once on startup.
-func (m ModuleContext) SetupTimedUpdates() {
-
-	for _, module := range m.Modules {
-		fmt.Printf("module: %v\n", module)
-		go module.TimedUpdate()
-	}
 }
 
 //RecieveCreateMessage handles incoming messages from the frontend and initiate
@@ -86,12 +69,14 @@ func RecieveCreateMessage(m *ModuleContext) {
 		handleMessage(request, incoming, m)
 	}
 }
+
 func handleMessage(request CreateMessage, incoming []byte, m *ModuleContext) {
 
 	creator := m.Creators[request.Name]
 	if creator == nil {
 		return
 	}
+
 	for _, mod := range m.Modules {
 		//Prevent duplicate module initiations
 		if mod.GetId() == request.Id {
@@ -107,6 +92,7 @@ func handleMessage(request CreateMessage, incoming []byte, m *ModuleContext) {
 		log.Printf("Added %v %v %d!", mod, err, len(m.Modules))
 	}
 }
+
 func ReadCallback(m *ModuleContext) {
 	for {
 		<-m.CallbackChannel
@@ -121,5 +107,5 @@ func initialMessages(m *ModuleContext) {
 		fmt.Printf("Updating module: %v", mod)
 		mod.Update()
 	}
-
+	m.sendLayouts()
 }

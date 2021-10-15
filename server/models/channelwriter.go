@@ -5,6 +5,8 @@ type ChannelWriter struct {
 }
 
 func (cw ChannelWriter) Write(bytes []byte) (int, error) {
-	cw.Channel <- bytes
+	copyDest := make([]byte, len(bytes))
+	copy(copyDest, bytes)
+	cw.Channel <- copyDest
 	return len(bytes), nil
 }
