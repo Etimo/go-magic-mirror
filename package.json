@@ -7,7 +7,7 @@
     "build": "webpack --mode production && go build",
     "server": "nodemon --watch server -e \".go\" --exec \"./start-server.sh\"",
     "start": "yarpm run build && ./go-magic-mirror",
-    "client": "webpack serve",
+    "client": "webpack serve --mode development",
     "dev": "concurrently \"yarpm run server\" \"yarpm run client\"",
     "install-go": "go get ./..."
   },

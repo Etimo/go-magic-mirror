@@ -66,10 +66,6 @@ var weatherTypes = map[uint8]string{
 type WeatherModule struct {
 	writer *json.Encoder
 	Id     string
-	X int
-	Y int
-	Width int
-	Height int
 	delay  time.Duration
 }
 
@@ -83,10 +79,6 @@ func NewWeatherModule(channel chan []byte,
 	return WeatherModule{
 		writer: json.NewEncoder(models.ChannelWriter{Channel: channel}),
 		Id:     Id,
-		X: X,
-		Y: Y,
-		Width: Width,
-		Height: Height,
 		delay:  delayInfoPush,
 	}
 }
@@ -96,7 +88,7 @@ func (c WeatherModule) Update() {
 	var temperature = strconv.FormatFloat(weather.TimeSeries[0].Parameters[1].Values[0], 'f', -1, 64) + " " + string(weather.TimeSeries[0].Parameters[1].Unit)
 	var weatherType = weatherTypes[uint8(weather.TimeSeries[0].Parameters[18].Values[0])]
 	var message models.TextWidget
-	message.Init(c.GetId(), c.X, c.Y, c.Width, c.Height, temperature)
+	message.Init(c.GetId(), temperature)
 	message.Icon = weatherType
 	c.writer.Encode(message)
 }
@@ -147,5 +139,5 @@ func (c WeatherModule) CreateFromMessage(message []byte, channel chan []byte) (m
 	if err != nil {
 		return nil, err
 	}
-	return NewWeatherModule(channel, targetMessage.Id, 1,1,1,1, time.Duration(targetMessage.Delay)*time.Millisecond), nil
+	return NewWeatherModule(channel, targetMessage.Id, 1, 1, 1, 1, time.Duration(targetMessage.Delay)*time.Millisecond), nil
 }
