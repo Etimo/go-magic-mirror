@@ -13,11 +13,13 @@ export default () => {
   ]);
   const [widgets, setWidgets] = useState({});
   const [layout, setLayout] = useState({});
+  const [error, setError] = useState(false);
   function connectWs() {
     console.log("Setting up websocket")
     const socket = new WebSocket("ws://localhost:8080/ws");
     socket.onopen = () => {
       // this.sendMessages(socket);
+      setError(false);
     }
 
     socket.onclose = function (e) {
@@ -28,6 +30,7 @@ export default () => {
     };
 
     socket.onerror = function (err) {
+      setError(true);
       console.error('Error: ', err.message, 'Closing socket');
       socket.close();
     };
@@ -55,11 +58,13 @@ export default () => {
 
   useEffect(() => { connectWs(); }, [])
 
+  const backgroundColor = error ? "red" : "black";
 
   return (
     <div>
       <div className="grid"
         style={{
+          backgroundColor,
           display: "grid",
           gridColumnGap: "5px",
           gridRowGap: "5px",
