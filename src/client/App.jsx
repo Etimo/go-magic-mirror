@@ -13,13 +13,25 @@ export default () => {
   ]);
   const [widgets, setWidgets] = useState({});
   const [layout, setLayout] = useState({});
-
-  useEffect(() => {
+  function connectWs() {
     console.log("Setting up websocket")
     const socket = new WebSocket("ws://localhost:8080/ws");
     socket.onopen = () => {
       // this.sendMessages(socket);
     }
+
+    socket.onclose = function (e) {
+      console.log("Will reconnect in one second", e.reason);
+      setTimeout(function () {
+        connectWs();
+      }, 1000);
+    };
+
+    socket.onerror = function (err) {
+      console.error('Error: ', err.message, 'Closing socket');
+      socket.close();
+    };
+
     socket.onmessage = (event) => {
       console.log("message here:", event.data);
       try {
@@ -39,7 +51,10 @@ export default () => {
       }
 
     };
-  }, [])
+  }
+
+  useEffect(() => { connectWs(); }, [])
+
 
   return (
     <div>
