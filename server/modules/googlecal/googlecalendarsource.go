@@ -97,7 +97,7 @@ func createGoogleCalendarSource(
 ) (EventSource, error) {
 	f, ferr := ioutil.ReadFile(credentialLocation)
 	if ferr != nil {
-		log.Println("Can not start google calendar plugin: ", ferr.Error())
+		log.Println("Can not start google calendar module: ", ferr.Error())
 		return nil, errors.New("could not read credential file")
 	}
 	config, err := google.JWTConfigFromJSON(f, calendar.CalendarReadonlyScope)
@@ -128,6 +128,7 @@ func createGoogleCalendarSource(
 			calendarIds = append(calendarIds, cal.Id)
 		}
 	}
+	log.Println(calendarNames)
 	return googleCalendarSource{
 		configFile:        credentialLocation,
 		client:            gocal,
