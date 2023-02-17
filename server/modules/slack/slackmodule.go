@@ -2,7 +2,6 @@ package slackmodule
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/models"
@@ -49,7 +48,7 @@ func replaceEmojis(messages []slack.Message) []slack.Message {
 
 	for i := range messages {
 		messages[i].Text = emojis.ReplaceEmojiInString(messages[i].Text)
-		fmt.Println(messages[i].Text)
+		//fmt.Println(messages[i].Text)
 	}
 	return messages
 

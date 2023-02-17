@@ -101,9 +101,7 @@ func (p *SlackLiveProvider) replaceUserNameInText(mess *slack.Message) {
 	}
 	var returnText string = mess.Text
 	for key, val := range replaceTarget {
-		fmt.Println(key + " " + val)
 		returnText = strings.ReplaceAll(returnText, key, val)
-		fmt.Println(returnText)
 	}
 	mess.Text = returnText
 }
