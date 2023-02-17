@@ -41,11 +41,11 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbac
 	slackModule := slackmodule.NewSlackModule(
 		writeChannel,
 		"slackannounce",
-		100*time.Second,
-		100*time.Second,
+		50*time.Second,
+		50*time.Second,
 		slackmodule.GetSlackProvider(
 			os.Getenv("slackToken"),
-			"etimo_internal"))
+			"achievements"))
 	mods = append(mods, slackModule)
 	layouts[slackModule.Id] = Layout{X: 1, Y: 5, Width: 5, Height: 6}
 

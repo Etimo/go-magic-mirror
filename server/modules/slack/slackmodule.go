@@ -26,7 +26,7 @@ type SlackModule struct {
 	Id          string
 	delay       time.Duration
 	refreshTime time.Duration
-	api         SlackProvider
+	api         *SlackProvider
 }
 
 func NewSlackModule(
@@ -41,7 +41,7 @@ func NewSlackModule(
 		Id:          Id,
 		delay:       delayInfoPush,
 		refreshTime: refreshTime,
-		api:         provider,
+		api:         &provider,
 	}
 }
 
@@ -60,7 +60,8 @@ func replaceUsenames(text string, usermap map[string]string) {
 }
 func (c SlackModule) Update() {
 
-	messages := c.api.GetLatestMessages(5)
+	client := *c.api
+	messages := client.GetLatestMessages(5)
 	messages = replaceEmojis(messages)
 
 	slackUpdateMessage := SlackUpdateMessage{

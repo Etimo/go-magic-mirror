@@ -2,6 +2,8 @@ package slackmodule
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/slack-go/slack"
 )
@@ -62,23 +64,9 @@ func (p *SlackLiveProvider) addUserNames(messages []slack.Message) []slack.Messa
 			continue
 		}
 
-		var username string
-		//Get and cache username if not in Cache
-		if val, ok := p.userNames[mess.User]; ok {
-			//fmt.Println("Cache hit: ", val)
-			username = val
-		} else {
-			user, err := GetUserName(mess.User, p.api)
-			if err == nil {
-				val = user.Name
-				p.userNames[mess.User] = user.Name
-				fmt.Println("Retrieved: ", user)
-			} else {
-				val = "Unknown"
-			}
-			username = val
-		}
-		mess.Username = username
+		name := p.getUserName(mess.Username)
+		mess.Username = name
+		p.replaceUserNameInText(&mess)
 		updatedMessages[i] = mess
 
 		fmt.Println(mess.Username)
@@ -87,7 +75,38 @@ func (p *SlackLiveProvider) addUserNames(messages []slack.Message) []slack.Messa
 	return updatedMessages
 
 }
+func (p *SlackLiveProvider) getUserName(name string) string {
+	cachedName, exists := p.userNames[name]
+	if exists {
+		return cachedName
+	}
+	user, err := GetUserName(name, p.api)
+	if err != nil {
+		return name
+	}
+	p.userNames[name] = user.RealName
+	return user.RealName
+}
+func (p *SlackLiveProvider) replaceUserNameInText(mess *slack.Message) {
+	re, _ := regexp.Compile("<@([A-Z0-9]+)>")
 
+	matches := re.FindAllStringSubmatch(mess.Text, -1)
+
+	replaceTarget := make(map[string]string)
+	for main, submatches := range matches {
+		for _, match := range submatches {
+			user := p.getUserName(match)
+			replaceTarget[submatches[main]] = user
+		}
+	}
+	var returnText string = mess.Text
+	for key, val := range replaceTarget {
+		fmt.Println(key + " " + val)
+		returnText = strings.ReplaceAll(returnText, key, val)
+		fmt.Println(returnText)
+	}
+	mess.Text = returnText
+}
 func GetUserName(userId string, client slack.Client) (*slack.User, error) {
 	return client.GetUserInfo(userId)
 }

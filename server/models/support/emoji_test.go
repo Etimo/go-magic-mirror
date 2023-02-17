@@ -2,7 +2,6 @@ package support
 
 import (
 	"bytes"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"strconv"
@@ -47,10 +46,6 @@ func TestEmojiSource(t *testing.T) {
 	//Capture stdout
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
-	str, _ := hex.DecodeString("0023-FE0F-20E3")
-	fmt.Println(string(str))
-	fmt.Printf("0023-FE0F-20E3")
-
 	fmt.Println("Stdout: ", buf.String())
 
 	emojiSource := GetEmojiSource()

@@ -81,6 +81,7 @@ func (s *EmojiSource) init() {
 	s.MatchRegexp = regexp
 
 }
+
 func (s EmojiSource) ReplaceEmojiInString(text string) string {
 	matches := s.MatchRegexp.FindAllStringSubmatch(text, -1)
 	if matches == nil {
