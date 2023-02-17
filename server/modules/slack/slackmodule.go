@@ -6,11 +6,14 @@ import (
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/models"
+	"github.com/etimo/go-magic-mirror/server/models/support"
 	"github.com/etimo/go-magic-mirror/server/modules"
 	"github.com/slack-go/slack"
 )
 
 const slackAPITokentEnv string = "slackApiToken"
+
+var emojis *support.EmojiSource = support.GetEmojiSource()
 
 type SlackUpdateMessage struct {
 	Id            string          `json:"Id"`
@@ -42,14 +45,30 @@ func NewSlackModule(
 	}
 }
 
+func replaceEmojis(messages []slack.Message) []slack.Message {
+
+	for i := range messages {
+		messages[i].Text = emojis.ReplaceEmojiInString(messages[i].Text)
+		fmt.Println(messages[i].Text)
+	}
+	return messages
+
+}
+
+func replaceUsenames(text string, usermap map[string]string) {
+
+}
 func (c SlackModule) Update() {
-	fmt.Println("UPDATE!")
-	messages := c.api.GetLatestMessages(10)
+
+	messages := c.api.GetLatestMessages(5)
+	messages = replaceEmojis(messages)
+
 	slackUpdateMessage := SlackUpdateMessage{
 		Id:            c.Id,
 		SlackMessages: messages,
-		Type:          "SlackUpdate",
+		Type:          "Slack",
 	}
+
 	c.writer.Encode(slackUpdateMessage)
 }
 
@@ -64,6 +83,7 @@ func (c SlackModule) TimedUpdate() {
 	}
 }
 
-func (c SlackModule) CreateFromMessage(message []byte, channel chan []byte) (modules.Module, error) {
+func (c SlackModule) CreateFromMessage(
+	message []byte, channel chan []byte) (modules.Module, error) {
 	return SlackModule{}, nil
 }

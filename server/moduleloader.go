@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/etimo/go-magic-mirror/server/models"
@@ -13,6 +14,7 @@ import (
 	"github.com/etimo/go-magic-mirror/server/modules/clock"
 	"github.com/etimo/go-magic-mirror/server/modules/googlecal"
 	"github.com/etimo/go-magic-mirror/server/modules/photomod"
+	slackmodule "github.com/etimo/go-magic-mirror/server/modules/slack"
 	"github.com/etimo/go-magic-mirror/server/modules/systeminfo"
 )
 
@@ -33,6 +35,20 @@ func NewModuleContext(writeChannel chan []byte, readChannel chan []byte, callbac
 	layouts["photo"] = Layout{X: 1, Y: 3, Width: 2, Height: 2, PluginType: "Photo"}
 	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1, 2, 2, 1, delay*15*time.Millisecond))
 	layouts["weather"] = Layout{X: 4, Y: 3, Width: 1, Height: 1}
+	mods = append(mods, weather.NewWeatherModule(writeChannel, "weather", 1, 2, 2, 1, delay*15*time.Millisecond))
+	layouts["weather"] = Layout{X: 4, Y: 3, Width: 1, Height: 1}
+
+	slackModule := slackmodule.NewSlackModule(
+		writeChannel,
+		"slackannounce",
+		100*time.Second,
+		100*time.Second,
+		slackmodule.GetSlackProvider(
+			os.Getenv("slackToken"),
+			"etimo_internal"))
+	mods = append(mods, slackModule)
+	layouts[slackModule.Id] = Layout{X: 1, Y: 5, Width: 5, Height: 6}
+
 	writer := json.NewEncoder(models.ChannelWriter{Channel: writeChannel})
 
 	moduleCreator := map[string]moduleCreator{

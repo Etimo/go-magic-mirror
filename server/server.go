@@ -36,7 +36,8 @@ func StartServer(bindAddress string) {
 
 	router.HandleFunc("/ws", s.sock.BindWebSocket)
 	router.HandleFunc("/forward", s.contrl.WriteToChannel).Methods(http.MethodPost)
-	http.FileServer(http.Dir("./dist"))))
+
+	http.FileServer(http.Dir("./dist"))
 
 	//Handlers are methods called on all routes they are registered for,
 	//here we register a LoggingHandler for access-tracking and a recovery (crash-handler)

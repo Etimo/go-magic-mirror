@@ -7,6 +7,7 @@ import (
 )
 
 func GetSlackProvider(apiKey string, channel string) SlackProvider {
+	fmt.Println("Creating slack integration for channel: ", channel)
 	return &SlackLiveProvider{
 		api:       *slack.New(apiKey),
 		channel:   channel,
@@ -33,9 +34,11 @@ func (p *SlackLiveProvider) GetLatestMessages(noOfMessages int) []slack.Message 
 		if err == nil {
 			p.channelId = *channelId
 		}
+
+		//emojis, err := GetEmojiList(p.api)
 	}
 
-	messages, _ := GetConversationHistory(p.channelId, p.api, 30)
+	messages, _ := GetConversationHistory(p.channelId, p.api, noOfMessages)
 
 	allMessages := make([]slack.Message, 0)
 	for _, message := range messages {
@@ -47,10 +50,6 @@ func (p *SlackLiveProvider) GetLatestMessages(noOfMessages int) []slack.Message 
 	}
 
 	updatedMessages := p.addUserNames(allMessages)
-	for _, mess := range updatedMessages {
-		fmt.Println("M: ", mess.Username)
-	}
-
 	return updatedMessages
 
 }
@@ -66,7 +65,7 @@ func (p *SlackLiveProvider) addUserNames(messages []slack.Message) []slack.Messa
 		var username string
 		//Get and cache username if not in Cache
 		if val, ok := p.userNames[mess.User]; ok {
-			fmt.Println("Cache hit: ", val)
+			//fmt.Println("Cache hit: ", val)
 			username = val
 		} else {
 			user, err := GetUserName(mess.User, p.api)
@@ -93,6 +92,9 @@ func GetUserName(userId string, client slack.Client) (*slack.User, error) {
 	return client.GetUserInfo(userId)
 }
 
+func GetEmojiList(client slack.Client) (map[string]string, error) {
+	return client.GetEmoji()
+}
 func GetConversationHistory(channelName string, client slack.Client, limit int) ([]slack.Message, error) {
 	params := slack.GetConversationHistoryParameters{
 		ChannelID: channelName,
@@ -134,4 +136,5 @@ type SlackLiveProvider struct {
 	channel   string
 	channelId string
 	userNames map[string]string
+	emojis    map[string]string
 }
