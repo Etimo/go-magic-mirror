@@ -5,6 +5,7 @@ import GoogleCalendar from "./googlecalendar/calendarbase";
 import Photo from "./photoMod/photo";
 import SystemInfo from "./systeminfo/systeminfo";
 import Text from "./text/Text";
+import SlackChannel from "./slackbasis/slackchannel";
 
 const components = {
   Text: Text,
@@ -12,6 +13,7 @@ const components = {
   SystemInfo: SystemInfo,
   Clock: Clock,
   //   GoogleCalendar: GoogleCalendar,
+  Slack: SlackChannel,
   Photo: Photo,
 };
 

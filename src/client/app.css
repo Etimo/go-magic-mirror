@@ -1,22 +1,26 @@
 body {
   color: white;
-  text-align:left;
+  text-align: left;
 }
-.progressDiv{
-  width:100%;
+
+.progressDiv {
+  width: 100%;
   display: flex;
 }
+
 .progress {
-  background-color:red;
-  height:3em;
-  display:inline-block;
+  background-color: red;
+  height: 3em;
+  display: inline-block;
 }
+
 .progressSpan {
-  align:top;
+  text-align: top;
 }
+
 
 body {
   text-align: center;
   margin: auto;
-  background-color:black;
+  background-color: black;
 }

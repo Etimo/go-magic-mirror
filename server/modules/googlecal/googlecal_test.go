@@ -12,7 +12,7 @@ type testEventSource struct {
 
 var testMessage UpdateMessage = UpdateMessage{
 	CalendarName: "Fake calendar",
-	Events:       []EventMessage{EventMessage{}},
+	Events:       []EventMessage{},
 }
 
 func (gc testEventSource) GetEvents(
@@ -38,23 +38,30 @@ func TestSimpleSource(t *testing.T) {
 
 //This test demands active google-calendar credentials, and connectivity
 //so is commented out. Leaving this in to allow easy testing of credential setup.
-func TestActualUpdate(t *testing.T) {
-	writeChannel := make(chan []byte, 100)
-	module, error := NewGoogleCalendarModule(
-		"testCal", []string{"Etvrimo Event-bokning"},
-		writeChannel,
-	)
-	if error != nil {
-		log.Println("Failed test, could not connect to google.")
-		t.Fail()
-	}
-	fmt.Printf("Mod: %v\n", module)
-	module.Update()
-	var message Message
-	err := json.Unmarshal(<-writeChannel, &message)
-	if err != nil {
-		log.Println("Failed tes, could not unmarshal output: ", err.Error())
-		t.Fail()
-	}
-	log.Println("Events: ", message)
-}
+//func TestActualUpdate(t *testing.T) {
+//	fmt.Println("ACTUAL!")
+//	//Capture stdout
+//	var buf bytes.Buffer
+//	log.SetOutput(&buf)
+//
+//	writeChannel := make(chan []byte, 100)
+//	module, error := NewGoogleCalendarModule(
+//		"testCal", []string{"*"},
+//		writeChannel,
+//	)
+//	if error != nil {
+//		log.Println("Failed test, could not connect to google.")
+//		t.Fail()
+//	}
+//	fmt.Printf("Mod: %v\n", module)
+//	module.Update()
+//	var message Message
+//	err := json.Unmarshal(<-writeChannel, &message)
+//	if err != nil {
+//		log.Println("Failed tes, could not unmarshal output: ", err.Error())
+//		t.Fail()
+//	}
+//	fmt.Println("Events: ", message)
+//	fmt.Println("Stdout: ", buf.String())
+//}
+//

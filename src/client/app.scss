@@ -1,48 +1,61 @@
 @import './weather-icons.scss';
+
 @font-face {
   font-family: 'Roboto';
-  src: 
-  url("../../public/Roboto-Regular.ttf");
+  src:
+    url("../../public/Roboto-Regular.ttf");
 }
 
-.progressDiv{
-  width:100%;
+.progressDiv {
+  width: 100%;
   display: flex;
+
   .progressSpan {
-    vertical-align:top;
-    margin-right:5px;
+    vertical-align: top;
+    margin-right: 5px;
   }
 }
+
 .progress {
-  background-color:red;
+  background-color: red;
   transition: width 0.05s linear;
-  height:3em;
-  display:inline-block;
+  height: 3em;
+  display: inline-block;
 }
 
 body {
   margin-top: 50px;
   text-align: center;
   margin: auto;
-  background-color:black;
+  background-color: black;
   color: white;
-  text-align:left;
+  text-align: left;
   font-family: 'Roboto';
 }
 
 @-webkit-keyframes fadeIn {
-            0% {opacity: 0;}
-            100% {opacity: 1;}
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
-         
+
 @keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
-         
+
 .fadeIn {
-   -webkit-animation-name: fadeIn;
-   animation-name: fadeIn;
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
   -webkit-animation-duration: 5s;
   animation-duration: 5s;
   -webkit-animation-fill-mode: both;
@@ -55,7 +68,7 @@ body {
   align-items: center;
 }
 
-.grid > div {
+.grid>div {
   background: rgb(0, 0, 0);
   color: white;
   border-radius: 1rem;
@@ -70,5 +83,16 @@ body {
       max-width: 100%;
       max-height: 100%;
     }
+  }
+}
+
+.slackChannelContainer {
+  overflow: hidden;
+
+  .slackMessage {
+    text-align: top;
+    overflow: hidden;
+    font-size: 0.75em;
+    word-wrap: break;
   }
 }
